@@ -112,99 +112,15 @@ var Sburb = (function (Sburb) {
     Sburb.musicStoppedFor = 0;
     Sburb.loadingRoom = false; // Only load one room at a time
     Sburb.tests = null;
-    Sburb.prefixed = null;
-    Sburb.firedAsync = false;
 
     Sburb.updateLoop = null; //the main updateLoop, used to interrupt updating
 
-    Sburb.testCompatibility = function (div, levelName, includeDevTools) {
-        if (Modernizr.xhr2 && !Sburb.firedAsync) {
-            try {
-                // Test blob response
-                var xhr = new XMLHttpRequest();
-                xhr.open("GET", levelName, true);
-                xhr.responseType = "blob";
-                xhr.onload = function () {
-                    if ((this.status == 200 || this.status == 0) && this.response) {
-                        Modernizr.addTest('xhrblob', function () {
-                            return true;
-                        }); // TODO: Test if this.response is actually a blob?
-                    } else {
-                        Modernizr.addTest('xhrblob', function () {
-                            return false;
-                        });
-                    }
-                };
-                xhr.onabort = function () {
-                    Modernizr.addTest('xhrblob', function () {
-                        return false;
-                    });
-                };
-                xhr.onerror = function () {
-                    Modernizr.addTest('xhrblob', function () {
-                        return false;
-                    });
-                };
-                xhr.send();
-
-                // Test Arraybuffer response
-                xhr = new XMLHttpRequest();
-                xhr.open("GET", levelName, true);
-                xhr.responseType = "arraybuffer";
-                xhr.onload = function () {
-                    if ((this.status == 200 || this.status == 0) && this.response) {
-                        var arr = this.response;
-                        Modernizr.addTest('xhrarraybuffer', function () {
-                            return true;
-                        }); // TODO: test if this.response is actually an arraybuffer?
-                    } else {
-                        Modernizr.addTest('xhrarraybuffer', function () {
-                            return false;
-                        });
-                    }
-                };
-                xhr.onabort = function () {
-                    Modernizr.addTest('xhrarraybuffer', function () {
-                        return false;
-                    });
-                };
-                xhr.onerror = function () {
-                    Modernizr.addTest('xhrarraybuffer', function () {
-                        return false;
-                    });
-                };
-                xhr.send();
-            } catch (e) {
-                alert(e.message + "\n\nIf you are running Google Chrome, you need to run it with the -allow-file-access-from-files switch to load this.")
-            }
-
-            Sburb.firedAsync = true;
-        } else {
-            Modernizr.addTest('xhrblob', function () {
-                return false;
-            });
-            Modernizr.addTest('xhrarraybuffer', function () {
-                return false;
-            });
-        }
-
-        // Make sure Modernizr finished loading async tests
-        if (!('xhrblob' in Modernizr && 'xhrarraybuffer' in Modernizr && 'datauri' in Modernizr)) {
-            setTimeout(function () {
-                Sburb.initialize(div, levelName, includeDevTools);
-            }, 200);
-            return false;
-        }
-
-        // Use Modernizr to test compatibility
-        var errors = [];
-        if (!Modernizr.fontface) errors.push("- Lack of CSS @font-face support.");
-        if (!Modernizr.canvas) errors.push("- Lack of canvas support.");
-        if (!Modernizr.canvastext) errors.push("- Lack of canvas text support.");
-        if (!Modernizr.json) errors.push("- Lack of JSON support.");
-        if (!Modernizr.xmlserializer) errors.push("- Lack of XMLSerializer support.");
-
-        if (errors.length) {
+    Sburb.initialize = function (div, levelName, includeDevTools) {
+        // only calls the callback if everything works
+        Libs.Compat.testCompat(levelName, function(tests) {
+            Sburb.tests = tests;
+            Sburb.initializeReal(div, levelName, includeDevTools);
+        }, function(errors) {
             // Display what failed
             var deploy = '<div style="padding-left: 0; padding-right: 0; margin-left: auto; margin-right: auto; display: block; width:650px; height:450px; overflow: auto;">';
             deploy += '<p style="font-weight: bold;">Your browser is too old. Here are the problems we found:</p>';
@@ -213,63 +129,10 @@ var Sburb = (function (Sburb) {
             deploy += '<p>Maybe try Chrome instead?</p>';
             deploy += '</div>';
             document.getElementById(div).innerHTML = deploy;
-            return false;
-        } else {
-            Sburb.prefixed = Modernizr.prefixed;
-            Sburb.tests = {};
-            Sburb.tests['blobrevoke'] = Modernizr.blob && Modernizr.blob.revoke;
-            if (Modernizr.audio && (Modernizr.audio.mp3 || Modernizr.audio.ogg)) {
-                Sburb.tests['audio'] = Boolean(true);
-                Sburb.tests.audio.mp3 = Modernizr.audio.mp3;
-                Sburb.tests.audio.ogg = Modernizr.audio.ogg;
-            } else {
-                Sburb.tests['audio'] = false;
-            }
-            if (Modernizr.localstorage || Modernizr.sessionstorage) {
-                Sburb.tests['storage'] = Boolean(true);
-                Sburb.tests.storage.local = Modernizr.localstorage;
-                Sburb.tests.storage.session = Modernizr.sessionstorage;
-            } else {
-                Sburb.tests['storage'] = false;
-            }
-
-            // Caution, weirdness ahead. Tests in order of preference, future tests should use increasing numbers. Do not change existing constants.
-            // To deprecate a test, move it to the bottom of the list. To make it obsolete, comment it out.
-            // Assets.js and Debugger.js are the only files to reference these constants
-            Sburb.tests['loading'] = 0; // Just pass raw URL to elements
-            if (Modernizr.xhrblob && Modernizr.blob && Modernizr.blob.url && Modernizr.blob.creator) {
-                Sburb.tests.loading = 11; // Load as blob, pass to blob constructor and generate Blob URI
-            } else if (Modernizr.xhrblob && Modernizr.blob && Modernizr.blob.url && Modernizr.blob.builder) {
-                Sburb.tests.loading = 10; // Load as blob, pass to blob builder and generate Blob URI
-            } else if (Modernizr.xhrblob && Modernizr.blob && Modernizr.blob.url && Modernizr.blob.slice) {
-                Sburb.tests.loading = 9; // Load as blob, pass to blob.slice and generate Blob URI
-            } else if (Modernizr.xhrblob && Modernizr.datauri && Modernizr.filereader) {
-                Sburb.tests.loading = 8; // Load as blob, pass to file reader and generate Data URI
-            } else if (Modernizr.xhrarraybuffer && Modernizr.arraybuffer && Modernizr.arraybuffer.dataview && Modernizr.blob && Modernizr.blob.url && Modernizr.blob.creator) {
-                Sburb.tests.loading = 7; // Load as arraybuffer, convert to data view, pass to blob constructor and generate Blob URI
-            } else if (Modernizr.xhrarraybuffer && Modernizr.arraybuffer && Modernizr.blob && Modernizr.blob.url && Modernizr.blob.creator) {
-                Sburb.tests.loading = 6; // Load as arraybuffer, use hacks to pass to blob constructor and generate Blob URI
-            } else if (Modernizr.xhrarraybuffer && Modernizr.arraybuffer && Modernizr.blob && Modernizr.blob.url && Modernizr.blob.builder) {
-                Sburb.tests.loading = 5; // Load as arraybuffer, pass to blob builder and generate Blob URI
-            } else if (Modernizr.xhrarraybuffer && Modernizr.arraybuffer && Modernizr.arraybuffer.dataview && Modernizr.datauri) {
-                Sburb.tests.loading = 4; // Load as arraybuffer, convert to base 64 and generate Data URI
-            } else if (Modernizr.overridemimetype && Modernizr.blob && Modernizr.blob.url && Modernizr.blob.creator && Modernizr.arraybuffer && Modernizr.arraybuffer.dataview) {
-                Sburb.tests.loading = 3; // Load as string, convert to arraybuffer, pass to blob constructor and generate Blob URI
-            } else if (Modernizr.overridemimetype && Modernizr.blob && Modernizr.blob.url && Modernizr.blob.builder && Modernizr.arraybuffer && Modernizr.arraybuffer.dataview) {
-                Sburb.tests.loading = 2; // Load as string, convert to arraybuffer, pass to blob builder and generate Blob URI
-            } else if (Modernizr.overridemimetype && Modernizr.datauri) {
-                Sburb.tests.loading = 1; // Load as string, clean it up, convert to base 64 and generate Data URI
-            } else if (Modernizr.vbarray && Modernizr.datauri) {
-                Sburb.tests.loading = 12; // Load as god knows what, use IE hacks, convert to base 64 and generate Data URI
-            }
-
-            return true;
-        }
+        });
     };
 
-    Sburb.initialize = function (div, levelName, includeDevTools) {
-        if (!Sburb.testCompatibility(div, levelName, includeDevTools))
-            return; // Hard crash if the browser is too old. testCompatibility() will handle the error message
+    Sburb.initializeReal = function (div, levelName, includeDevTools) {
         Sburb.debugger = new Sburb.Debugger(); // Load debugger first! -- But not quite
 
         var deploy = document.createElement('div');
@@ -830,5 +693,3 @@ var Sburb = (function (Sburb) {
     Sburb.draw = draw;
     return Sburb;
 })(Sburb || {});
-
-    

@@ -212,7 +212,7 @@ var Sburb = (function (Sburb) {
         var base64 = '';
         var encodings = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
-        var bytes = new window[Sburb.prefixed("Uint8Array", window, false)](arrayBuffer);
+        var bytes = new window[Modernizr.prefixed("Uint8Array", window, false)](arrayBuffer);
         var byteLength = bytes.byteLength;
         var byteRemainder = byteLength % 3;
         var mainLength = byteLength - byteRemainder;
@@ -267,7 +267,7 @@ var Sburb = (function (Sburb) {
 
         // We've loaded this before, don't bother loading it again
         if (assetPath in Sburb.assetManager.blobs) {
-            var URLCreator = window[Sburb.prefixed("URL", window, false)];
+            var URLCreator = window[Modernizr.prefixed("URL", window, false)];
             var blob = Sburb.assetManager.blobs[assetPath];
             var url = false;
             if (Sburb.tests.blobrevoke) {
@@ -341,16 +341,16 @@ var Sburb = (function (Sburb) {
                     // Now make a URL out of the asset
                     var url = false;
                     if ([5, 6, 7, 9, 10, 11].contains(Sburb.tests.loading)) {
-                        var URLCreator = window[Sburb.prefixed("URL", window, false)];
+                        var URLCreator = window[Modernizr.prefixed("URL", window, false)];
                         var blob = false;
                         if (Sburb.tests.loading == 11) {
                             blob = new Blob([this.response], {type: type});
                         } else if ([5, 10].contains(Sburb.tests.loading)) {
-                            var builder = new window[Sburb.prefixed("BlobBuilder", window, false)]();
+                            var builder = new window[Modernizr.prefixed("BlobBuilder", window, false)]();
                             builder.append(this.response);
                             blob = builder.getBlob(type);
                         } else if (Sburb.tests.loading == 9) {
-                            blob = this.response[Sburb.prefixed("slice", Blob.prototype, false)](0, this.response.size, type);
+                            blob = this.response[Modernizr.prefixed("slice", Blob.prototype, false)](0, this.response.size, type);
                         } else if (Sburb.tests.loading == 7) {
                             var dataview = new Uint8Array(this.response);
                             blob = new Blob([dataview], {type: type});
@@ -433,12 +433,12 @@ var Sburb = (function (Sburb) {
                         for (var i = 0; i < len; i += 1) {
                             bytes[i] = binstr.charCodeAt(i) & 0xFF;
                         }
-                        var URLCreator = window[Sburb.prefixed("URL", window, false)];
+                        var URLCreator = window[Modernizr.prefixed("URL", window, false)];
                         var blob = false;
                         if (Sburb.tests.loading == 3) {
                             blob = new Blob([bytes], {type: type});
                         } else if (Sburb.tests.loading == 2) {
-                            var builder = new window[Sburb.prefixed("BlobBuilder", window, false)]();
+                            var builder = new window[Modernizr.prefixed("BlobBuilder", window, false)]();
                             builder.append(bytes.buffer);
                             blob = builder.getBlob(type);
                         } // No else, this covers all the methods in this block
