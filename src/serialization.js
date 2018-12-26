@@ -405,8 +405,6 @@ var Sburb = (function (Sburb) {
                         innerHTML = innerHTML.concat(";");
                     }
                 }
-            } else if (curAsset.type == "movie") {
-                innerHTML += curAsset.originalVals;
             } else if (curAsset.type == "font") {
                 innerHTML += curAsset.originalVals;
             } else if (curAsset.type == "text") {
@@ -715,8 +713,6 @@ var Sburb = (function (Sburb) {
                 path.push({x: parseInt(point[0]), y: parseInt(point[1])});
             }
             newAsset = Sburb.createPathAsset(name, path);
-        } else if (type == "movie") {
-            newAsset = Sburb.createMovieAsset(name, value, blobUrls);
         } else if (type == "font") {
             //var sources = value.split(";");
             newAsset = Sburb.createFontAsset(name, value);

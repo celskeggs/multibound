@@ -42,8 +42,6 @@ var Sburb = (function (Sburb) {
             "ogg": "audio/ogg",
             "ttf": "application/x-font-ttf",
             "woff": "application/x-font-woff",
-            "swf": "application/x-shockwave-flash",
-            "flv": "application/x-shockwave-flash"
         };
     };
 
@@ -191,13 +189,6 @@ var Sburb = (function (Sburb) {
             if (!this.loaded[name]) {
                 this.loaded[name] = true;
                 this.totalLoaded++;
-
-                if (this.finishedLoading() && Sburb._hardcode_load) {
-                    // only really here to work for old hard-loading
-                    Sburb.finishInit();
-                    initFinished = true;
-
-                }
             }
         }
     };
@@ -744,69 +735,6 @@ var Sburb = (function (Sburb) {
             }
         };
         ret.reload();
-        return ret;
-    };
-
-//create a flash movie Asset
-    Sburb.createMovieAsset = function (name, path) {
-        var ret = {}; //src:Sburb.assetManager.resolvePath(path)};
-        ret.name = name;
-        ret.type = "movie";
-        ret.originalVals = path;
-
-        ret.done = function (url) {
-            ret.src = url;
-            Sburb.Bins["movie"].innerHTML += '<div id="' + name + '"><object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://fpdownload.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0" id="movie" width="' + Sburb.Stage.width + '" height="' + Sburb.Stage.height + '"><param name="allowScriptAccess" value="always" /\><param name="wmode" value="transparent"/\><param name="movie" value="' + ret.src + '" /\><param name="quality" value="high" /\><embed src="' + ret.src + '" quality="high" WMODE="transparent" width="' + Sburb.Stage.width + '" height="' + Sburb.Stage.height + '" swLiveConnect="true" id="movie' + name + '" name="movie' + name + '" allowScriptAccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" /\></object></div>';
-            document.getElementById(name).style.display = "none";
-        };
-        ret.success = function (url) {
-            ret.done(url);
-            ret.loaded = true;
-        };
-        ret.failure = function () {
-            ret.failed = true;
-        };
-        ret.assetOnLoadFunction = function (fn) {
-            if (ret.loaded) {
-                if (fn) {
-                    fn();
-                }
-                return true;
-            } else {
-                ret.success = function (url) {
-                    ret.done(url);
-                    ret.loaded = true;
-                    if (fn) {
-                        fn();
-                    }
-                };
-                return false;
-            }
-        };
-        ret.assetOnFailFunction = function (fn) {
-            if (ret.failed) {
-                if (fn) {
-                    fn();
-                }
-                return true;
-            } else {
-                ret.failure = function () {
-                    if (!ret.failed && fn) {
-                        fn();
-                    }
-                    ret.failed = true;
-                };
-                return false;
-            }
-        };
-        ret.reload = function () {
-            ret.loaded = false;
-            ret.failed = false;
-            Sburb.loadGenericAsset(ret, path);
-        };
-
-        ret.reload();
-
         return ret;
     };
 

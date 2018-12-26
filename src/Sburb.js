@@ -117,8 +117,6 @@ var Sburb = (function (Sburb) {
     Sburb.firedAsync = false;
 
     Sburb.updateLoop = null; //the main updateLoop, used to interrupt updating
-    Sburb.initFinished = null; //only used when _hardcode_load is true
-    Sburb._hardcode_load = null; //set to 1 when we don't want to load from XML: see initialize()
     Sburb._include_dev = false;
     var lastDrawTime = 0;
 
@@ -291,12 +289,6 @@ var Sburb = (function (Sburb) {
         gameDiv.style.zIndex = "100";
         deploy.appendChild(gameDiv);
 
-        var movieDiv = document.createElement('div');
-        movieDiv.id = "SBURBmovieBin";
-        movieDiv.style.position = "absolute";
-        movieDiv.style.zIndex = "200";
-        deploy.appendChild(movieDiv);
-
         var fontDiv = document.createElement('div');
         fontDiv.id = "SBURBfontBin";
         deploy.appendChild(fontDiv);
@@ -342,7 +334,6 @@ var Sburb = (function (Sburb) {
         Sburb.Game = gameDiv;
         Sburb.Map = mapCanvas;
         Sburb.Stage = gameCanvas;
-        Sburb.Bins["movie"] = movieDiv;
         Sburb.Bins["font"] = fontDiv;
         Sburb.Bins["gif"] = gifDiv;
 
@@ -364,9 +355,7 @@ var Sburb = (function (Sburb) {
         Sburb.pressed = {};
         Sburb.pressedOrder = [];
 
-        Sburb.loadSerialFromXML(levelName); // comment out this line and
-        //loadAssets();                        // uncomment these two lines, to do a standard hardcode load
-        //_hardcode_load = 1;
+        Sburb.loadSerialFromXML(levelName);
     };
 
     Sburb.setDimensions = function (width, height) {
@@ -414,36 +403,33 @@ var Sburb = (function (Sburb) {
     }
 
     function draw() {
-        //stage.clearRect(0,0,Stage.width,Stage.height);
-        if (!Sburb.playingMovie) {
-            Sburb.stage.save();
-            Sburb.Stage.offset = true;
-            Sburb.stage.translate(-Sburb.Stage.x, -Sburb.Stage.y);
+        Sburb.stage.save();
+        Sburb.Stage.offset = true;
+        Sburb.stage.translate(-Sburb.Stage.x, -Sburb.Stage.y);
 
-            Sburb.curRoom.draw();
+        Sburb.curRoom.draw();
 
-            Sburb.stage.restore();
-            Sburb.Stage.offset = false;
+        Sburb.stage.restore();
+        Sburb.Stage.offset = false;
 
-            if (Sburb.Stage.fade > 0.1) {
-                Sburb.stage.fillStyle = "rgba(0,0,0," + Sburb.Stage.fade + ")";
-                Sburb.stage.fillRect(0, 0, Sburb.Stage.width, Sburb.Stage.height);
-            }
-
-            Sburb.dialoger.draw();
-            drawHud();
-
-            Sburb.stage.save();
-            Sburb.Stage.offset = true;
-            Sburb.stage.translate(-Sburb.Stage.x, -Sburb.Stage.y);
-
-            Sburb.chooser.draw();
-
-            Sburb.stage.restore();
-            Sburb.Stage.offset = false;
-
-            Sburb.debugger.draw();
+        if (Sburb.Stage.fade > 0.1) {
+            Sburb.stage.fillStyle = "rgba(0,0,0," + Sburb.Stage.fade + ")";
+            Sburb.stage.fillRect(0, 0, Sburb.Stage.width, Sburb.Stage.height);
         }
+
+        Sburb.dialoger.draw();
+        drawHud();
+
+        Sburb.stage.save();
+        Sburb.Stage.offset = true;
+        Sburb.stage.translate(-Sburb.Stage.x, -Sburb.Stage.y);
+
+        Sburb.chooser.draw();
+
+        Sburb.stage.restore();
+        Sburb.Stage.offset = false;
+
+        Sburb.debugger.draw();
     }
 
     var _onkeydown = function (e) {
@@ -842,13 +828,6 @@ var Sburb = (function (Sburb) {
     Sburb.playSound = function (sound) {
         sound.stop();
         sound.play();
-    };
-
-    Sburb.playMovie = function (movie) {
-        var name = movie.name;
-        document.getElementById(name).style.display = "block";
-        Sburb.waitFor = new Sburb.Trigger("movie," + name + ",5");
-        Sburb.playingMovie = true;
     };
 
     Sburb.startUpdateProcess = startUpdateProcess;

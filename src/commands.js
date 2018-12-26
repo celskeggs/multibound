@@ -215,33 +215,6 @@ var Sburb = (function (Sburb) {
         sprite.depthing = depth;
     };
 
-
-//Play the specified flash movie
-//syntax: movieName
-    commands.playMovie = function (info) {
-        var params = parseParams(info);
-        Sburb.playMovie(Sburb.assets[params[0]]);
-        if (params.length > 0) {
-            var interval = setInterval(function () {
-                var movie = window.document.getElementById("movie" + params[0]);
-                if (movie && (!movie.CurrentFrame || movie.CurrentFrame() >= 4)) {
-                    clearInterval(interval);
-                    commands.playSong(info.substring(info.indexOf(",") + 1, info.length));
-                }
-            }, 10);
-        }
-    };
-
-//Remove the specified flash movie
-//syntax: movieName
-    commands.removeMovie = function (info) {
-        Sburb.playingMovie = false;
-        Sburb.draw();
-        document.getElementById(info).style.display = "none";
-        //document.getElementById("gameDiv").style.display = "block";
-
-    };
-
 //Prevents user from providing input to the character
 //syntax: none
     commands.disableControl = function (info) {

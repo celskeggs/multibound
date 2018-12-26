@@ -134,24 +134,6 @@ var Sburb = (function (Sburb) {
         };
     };
 
-//check if the movie has finished playing (iternal utility event)
-//syntax: movieName
-    events.movie = function (info) {
-        var params = parseParams(info);
-        var threshold = parseInt(params[2]);
-        this.reset = function () {
-            this.movie = window.document.getElementById("movie" + params[1]);
-        };
-        this.checkCompletion = function () {
-            if (this.movie && (!this.movie.TotalFrames ||
-                (this.movie.TotalFrames() > 0 && this.movie.TotalFrames() - 1 - this.movie.CurrentFrame() <= threshold))) {
-                Sburb.commands.removeMovie(params[1]);
-                return true;
-            }
-            return false;
-        }
-    };
-
 //check if the game state meets a certain condition
 //syntax: condition (e.g. doorOpened=true)
     events.gameState = function (info) {
