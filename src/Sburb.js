@@ -116,8 +116,6 @@ var Sburb = (function (Sburb) {
     Sburb.firedAsync = false;
 
     Sburb.updateLoop = null; //the main updateLoop, used to interrupt updating
-    Sburb._include_dev = false;
-    var lastDrawTime = 0;
 
     Sburb.testCompatibility = function (div, levelName, includeDevTools) {
         if (Modernizr.xhr2 && !Sburb.firedAsync) {

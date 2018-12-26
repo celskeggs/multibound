@@ -39,7 +39,7 @@ var Sburb = (function (Sburb) {
         return new Sburb.Action(this.command, this._info, this.name, this.sprite, this.followUp, this.noWait, this.noDelay, this.times, this.soft, this.silent);
     };
 
-//Serialize to XML (see serialization.js)
+//Serialize to XML (see Serialization.js)
     Sburb.Action.prototype.serialize = function (output) {
         output = output.concat("\n<action " +
             "command='" + this.command +
