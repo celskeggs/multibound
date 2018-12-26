@@ -79,7 +79,6 @@ var Sburb = (function (Sburb) {
     Sburb.Stage = null; //the canvas, we're gonna load it up with a bunch of flash-like game data like fps and scale factors
     Sburb.Bins = {}; //the various bin divs
     Sburb.cam = {x: 0, y: 0};
-    Sburb.crashed = false; // In case of catastrophic failure
     Sburb.stage = null; //its context
     Sburb.gameState = {};
     Sburb.pressed = null; //the pressed keys
@@ -196,8 +195,7 @@ var Sburb = (function (Sburb) {
             setTimeout(function () {
                 Sburb.initialize(div, levelName, includeDevTools);
             }, 200);
-            Sburb.crashed = true;
-            return;
+            return false;
         }
 
         // Use Modernizr to test compatibility
@@ -217,7 +215,7 @@ var Sburb = (function (Sburb) {
             deploy += '<p>Maybe try Chrome instead?</p>';
             deploy += '</div>';
             document.getElementById(div).innerHTML = deploy;
-            Sburb.crashed = true; // Stop initialization
+            return false;
         } else {
             Sburb.prefixed = Modernizr.prefixed;
             Sburb.tests = {};
@@ -266,13 +264,13 @@ var Sburb = (function (Sburb) {
             } else if (Modernizr.vbarray && Modernizr.datauri) {
                 Sburb.tests.loading = 12; // Load as god knows what, use IE hacks, convert to base 64 and generate Data URI
             }
+
+            return true;
         }
     };
 
     Sburb.initialize = function (div, levelName, includeDevTools) {
-        Sburb.crashed = false;
-        Sburb.testCompatibility(div, levelName, includeDevTools);
-        if (Sburb.crashed)
+        if (!Sburb.testCompatibility(div, levelName, includeDevTools))
             return; // Hard crash if the browser is too old. testCompatibility() will handle the error message
         Sburb.debugger = new Sburb.Debugger(); // Load debugger first! -- But not quite
 
@@ -775,7 +773,6 @@ var Sburb = (function (Sburb) {
             }
         }
     }
-
 
     Sburb.changeRoom = function (newRoom, newX, newY) {
         Sburb.destRoom = newRoom;
