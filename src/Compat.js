@@ -1,3 +1,54 @@
+// String trim polyfill
+if (typeof String.prototype.trim !== 'function') {
+    String.prototype.trim = function () {
+        return this.replace(/^\s+|\s+$/g, '');
+    }
+}
+// Array Remove - By John Resig (MIT Licensed)
+if (typeof Array.prototype.remove !== 'function') {
+    Array.prototype.remove = function (from, to) {
+        var rest = this.slice((to || from) + 1 || this.length);
+        this.length = from < 0 ? this.length + from : from;
+        return this.push.apply(this, rest);
+    };
+}
+// Array contains polyfill
+if (typeof Array.prototype.contains !== 'function') {
+    Array.prototype.contains = function (obj) {
+        return this.indexOf(obj) > -1;
+    };
+}
+// Not a polyfill but lets add it anyway
+Array.prototype.destroy = function (obj) {
+    var i = this.indexOf(obj);
+    if (i >= 0)
+        this.remove(i);
+};
+// window.atob and window.btoa polyfill
+(function () {
+    var a = typeof window != "undefined" ? window : exports,
+        b = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=", c = function () {
+            try {
+                document.createElement("$")
+            } catch (a) {
+                return a
+            }
+        }();
+    a.btoa || (a.btoa = function (a) {
+        for (var d, e, f = 0, g = b, h = ""; a.charAt(f | 0) || (g = "=", f % 1); h += g.charAt(63 & d >> 8 - f % 1 * 8)) {
+            e = a.charCodeAt(f += .75);
+            if (e > 255) throw c;
+            d = d << 8 | e
+        }
+        return h
+    }), a.atob || (a.atob = function (a) {
+        a = a.replace(/=+$/, "");
+        if (a.length % 4 == 1) throw c;
+        for (var d = 0, e, f, g = 0, h = ""; f = a.charAt(g++); ~f && (e = d % 4 ? e * 64 + f : f, d++ % 4) ? h += String.fromCharCode(255 & e >> (-2 * d & 6)) : 0) f = b.indexOf(f);
+        return h
+    })
+})();
+
 var Libs = (function (Libs) {
     Libs.Compat = {};
     Libs.Compat.testCompat = function (levelName, successcb, errcb) {
