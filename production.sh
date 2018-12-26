@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e -u
 gcc jsmin.c -o jsmin
-cat libs/Iuppiter.js libs/modernizr.js src/Compat.js src/Sburb.js src/Sprite.js src/Fighter.js src/Character.js src/SpriteButton.js src/Animation.js src/Room.js src/FontEngine.js src/Action.js src/Events.js src/Trigger.js src/Commands.js src/Serialization.js src/Dialoger.js src/Chooser.js src/Audio.js src/Assets.js src/Debugger.js src/Path.js src/ActionQueue.js > Sburb.js
+cat libs/Iuppiter.js libs/modernizr.js src/Compat.js src/Sburb.js src/Sprite.js src/Fighter.js src/Character.js src/SpriteButton.js src/Animation.js src/Room.js src/FontEngine.js src/Action.js src/Events.js src/Trigger.js src/Commands.js src/Serialization.js src/Dialoger.js src/Chooser.js src/Audio.js src/Assets.js src/Path.js src/ActionQueue.js > Sburb.js
 ./jsmin < Sburb.js > Sburb.min.js
 cp index.html index_dev.html
 rm index.html

@@ -31,7 +31,6 @@ var Sburb = (function (Sburb) {
     Sburb.gameState = {};
     Sburb.pressed = null; //the pressed keys
     Sburb.pressedOrder = null; //reverse stack of keypress order. Higher index = pushed later
-    Sburb.debugger = null;
     Sburb.assetManager = null; //the asset loader
     Sburb.assets = null; //all images, sounds, paths
     Sburb.sprites = null; //all sprites that were Serial loaded
@@ -81,8 +80,6 @@ var Sburb = (function (Sburb) {
     };
 
     Sburb.initializeReal = function (div, levelName, includeDevTools) {
-        Sburb.debugger = new Sburb.Debugger(); // Load debugger first! -- But not quite
-
         var deploy = document.createElement('div');
         deploy.style.position = "relative";
         deploy.style.padding = "0";
@@ -235,8 +232,6 @@ var Sburb = (function (Sburb) {
 
         Sburb.stage.restore();
         Sburb.Stage.offset = false;
-
-        Sburb.debugger.draw();
     }
 
     var _onkeydown = function (e) {
@@ -387,7 +382,6 @@ var Sburb = (function (Sburb) {
         } else {
             Sburb.char.moveNone();
         }
-        Sburb.debugger.handleInputs(Sburb.pressed);
     }
 
     function handleHud() {

@@ -159,7 +159,7 @@ var Libs = (function (Libs) {
 
                 // Caution, weirdness ahead. Tests in order of preference, future tests should use increasing numbers. Do not change existing constants.
                 // To deprecate a test, move it to the bottom of the list. To make it obsolete, comment it out.
-                // Assets.js and Debugger.js are the only files to reference these constants
+                // Assets.js and (the now removed) Debugger.js are the only files to reference these constants
                 tests['loading'] = 0; // Just pass raw URL to elements
                 if (Modernizr.xhrblob && Modernizr.blob && Modernizr.blob.url && Modernizr.blob.creator) {
                     tests.loading = 11; // Load as blob, pass to blob constructor and generate Blob URI

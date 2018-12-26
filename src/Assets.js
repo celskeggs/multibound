@@ -69,9 +69,7 @@ var Sburb = (function (Sburb) {
         if (!Sburb.pressed[Sburb.Keys.space])
             this.space = false;
 
-        Sburb.debugger.handleInputs(Sburb.pressed);
         this.draw();
-        Sburb.debugger.draw();
     };
 
     Sburb.AssetManager.prototype.resolvePath = function (path) {
