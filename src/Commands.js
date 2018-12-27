@@ -76,7 +76,7 @@ var Sburb = (function (Sburb) {
     commands.playSong = function (info) {
         var params = parseParams(info);
 
-        Sburb.changeBGM(new Sburb.BGM(Sburb.assets[params[0]], parseFloat(params[1])));
+        Sburb.changeBGM(Sburb.assets[params[0]], parseFloat(params[1]));
     };
 
     commands.becomeNPC = function (info) {
@@ -402,18 +402,17 @@ var Sburb = (function (Sburb) {
 //Toggle the volume
 //syntax: none
     commands.toggleVolume = function () {
-        if (Sburb.globalVolume >= 1) {
-            Sburb.globalVolume = 0;
-        } else if (Sburb.globalVolume >= 0.6) {
-            Sburb.globalVolume = 1;
-        } else if (Sburb.globalVolume >= 0.3) {
-            Sburb.globalVolume = 0.66;
+        var volume = Sburb.getVolume();
+        if (volume >= 1) {
+            volume = 0;
+        } else if (volume >= 0.6) {
+            volume = 1;
+        } else if (volume >= 0.3) {
+            volume = 0.66;
         } else {
-            Sburb.globalVolume = 0.33;
+            volume = 0.33;
         }
-        if (Sburb.bgm) {
-            Sburb.bgm.fixVolume();
-        }
+        Sburb.setVolume(volume);
     };
 
 //change the engine mode

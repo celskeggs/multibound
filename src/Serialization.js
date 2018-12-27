@@ -494,7 +494,7 @@ var Sburb = (function (Sburb) {
             Sburb.Bins[bin].innerHTML = "";
         }
         Sburb.gameState = {};
-        Sburb.globalVolume = 1;
+        Sburb.setVolume(1);
         Sburb.hud = {};
         Sburb.sprites = {};
         Sburb.buttons = {};
@@ -977,7 +977,7 @@ var Sburb = (function (Sburb) {
         var bgm = rootInfo.getNamedItem("bgm");
         if (bgm) {
             var params = bgm.value.split(",");
-            Sburb.changeBGM(new Sburb.BGM(Sburb.assets[params[0]], parseFloat(params.length > 1 ? params[1] : "0")));
+            Sburb.changeBGM(Sburb.assets[params[0]], parseFloat(params.length > 1 ? params[1] : "0"));
         }
 
         var initAction;

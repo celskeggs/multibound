@@ -529,7 +529,6 @@ var Sburb = (function (Sburb) {
         }
     };
 
-
     Sburb.setCurRoomOf = function (sprite) {
         if (!Sburb.curRoom.contains(sprite)) {
             for (var room in Sburb.rooms) {
@@ -539,21 +538,6 @@ var Sburb = (function (Sburb) {
                     return;
                 }
             }
-        }
-    };
-
-    Sburb.changeBGM = function (newSong) {
-        if (newSong) {
-            if (Sburb.bgm) {
-                if (Sburb.bgm.asset == newSong.asset && Sburb.bgm.startLoop == newSong.startLoop) {
-                    // maybe check for some kind of restart value
-                    return;
-                }
-                Sburb.bgm.stop();
-            }
-            Sburb.bgm = newSong;
-            Sburb.bgm.stop();
-            Sburb.bgm.play();
         }
     };
 

@@ -1,8 +1,4 @@
 var Sburb = (function (Sburb) {
-
-    Sburb.globalVolume = 1;
-
-
 ///////////////////////////////////////
 //Sound Class
 ///////////////////////////////////////
@@ -22,7 +18,6 @@ var Sburb = (function (Sburb) {
     Sburb.Sound.prototype.play = function (pos) {
         if (window.chrome) {
             if (this.playedOnce) {
-                // console.log("load again");
                 this.asset.load();
             } else {
                 this.playedOnce = true;
@@ -41,21 +36,19 @@ var Sburb = (function (Sburb) {
         } else if (pos) {
             this.asset.currentTime = pos;
         }
-        this.fixVolume();
+        this.asset.volume = Sburb.globalVolume;
         this.asset.play();
     };
 
 //pause this sound
     Sburb.Sound.prototype.pause = function () {
         this.asset.pause();
-        //console.log("pausing the sound...");
     };
 
 //stop this sound
     Sburb.Sound.prototype.stop = function () {
         this.pause();
         this.asset.currentTime = 0;
-        //console.log("stopping the sound...");
     };
 
 //has the sound stopped
@@ -63,47 +56,56 @@ var Sburb = (function (Sburb) {
         return this.asset.ended;
     };
 
-//ensure the sound is playing at the global volume
-    Sburb.Sound.prototype.fixVolume = function () {
-        this.asset.volume = Sburb.globalVolume;
-        //console.log("fixing the volume...");
-    };
-
-
 /////////////////////////////////////
 //BGM Class (inherits Sound)
 /////////////////////////////////////
 
 //constructor
-    Sburb.BGM = function (asset, startLoop, priority) {
+    function BGM(asset, startLoop) {
         Sburb.Sound.call(this, asset);
-        this.startLoop = 0;
-        this.endLoop = 0;
+        this.startLoop = startLoop;
 
-        this.setLoopPoints(startLoop ? startLoop : 0);
-    };
-
-    Sburb.BGM.prototype = new Sburb.Sound();
-
-//set the points in the sound to loop
-    Sburb.BGM.prototype.setLoopPoints = function (start, end) {
-        tmpAsset = this.asset;
-        tmpAsset.addEventListener('ended', function () {
-            //	console.log("I'm loopin' as hard as I can cap'n! (via event listener)");
-            tmpAsset.currentTime = start;
-            tmpAsset.play();
+        asset.addEventListener('ended', function () {
+            asset.currentTime = startLoop;
+            asset.play();
         }, false);
-        this.startLoop = start;
-        this.endLoop = end;
-        // do we need to have an end point? does that even make sense
-    };
+    }
 
-//loop the sound
-    Sburb.BGM.prototype.loop = function () {
-        //	console.log("looping...");
+    BGM.prototype = new Sburb.Sound();
+
+    //loop the sound
+    BGM.prototype.loop = function () {
         this.play(this.startLoop);
     };
 
+    Sburb.changeBGM = function (asset, startLoop) {
+        if (!startLoop) {
+            startLoop = 0;
+        }
+        if (Sburb.bgm) {
+            if (Sburb.bgm.asset == asset && Sburb.bgm.startLoop == startLoop) {
+                // maybe check for some kind of restart value
+                return;
+            }
+            Sburb.bgm.stop();
+        }
+        Sburb.bgm = new BGM(asset, startLoop);
+        Sburb.bgm.stop();
+        Sburb.bgm.play();
+    };
+
+    Sburb.globalVolume = 1;
+
+    Sburb.getVolume = function() {
+        return Sburb.globalVolume;
+    };
+
+    Sburb.setVolume = function(volume) {
+        Sburb.globalVolume = volume;
+        if (Sburb.bgm) {
+            Sburb.bgm.asset.volume = volume;
+        }
+    };
 
     return Sburb;
 })(Sburb || {});
