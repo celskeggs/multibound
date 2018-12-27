@@ -140,29 +140,6 @@ var Sburb = (function (Sburb) {
         return this.queries;
     };
 
-    Sprite.prototype.serialize = function (output) {
-        var animationCount = 0;
-        for (var anim in this.animations) {
-            if (!this.animations.hasOwnProperty(anim)) continue;
-            animationCount++;
-        }
-
-        output = output.concat("\n<sprite " +
-            Sburb.serializeAttributes(this, "name", "x", "y", "dx", "dy", "width", "height", "depthing", "collidable") +
-            (animationCount > 1 ? "state='" + this.state + "' " : "") +
-            ">");
-
-        for (var anim in this.animations) {
-            if (!this.animations.hasOwnProperty(anim)) continue;
-            output = this.animations[anim].serialize(output);
-        }
-        for (var i = 0; i < this.actions.length; i++) {
-            output = this.actions[i].serialize(output);
-        }
-        output = output.concat("\n</sprite>");
-        return output;
-    };
-
     Sprite.prototype.clone = function (newName) {
         var newSprite = new Sburb.Sprite(newName, this.x, this.y, this.width, this.height, this.dx, this.dy, this.depthing, this.collidable);
         for (var anim in this.animations) {

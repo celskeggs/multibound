@@ -68,23 +68,6 @@ var Sburb = (function (Sburb) {
         this.startAnimation("state" + state);
     };
 
-//serialize this SpriteButton to XML
-    Sburb.SpriteButton.prototype.serialize = function (output) {
-        output = output.concat("\n<spritebutton name='" + this.name +
-            (this.x ? "' x='" + this.x : "") +
-            (this.y ? "' y='" + this.y : "") +
-            "' width='" + this.width +
-            "' height='" + this.height +
-            "' sheet='" + this.animation.sheet.name +
-            "' >");
-        if (this.action) {
-            output = this.action.serialize(output);
-        }
-        output = output.concat("</spritebutton>");
-        return output;
-    };
-
-
 ///////////////////////////////////////////////
 //Related Utility Functions
 ///////////////////////////////////////////////

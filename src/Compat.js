@@ -149,13 +149,6 @@ var Libs = (function (Libs) {
                 } else {
                     tests['audio'] = false;
                 }
-                if (Modernizr.localstorage || Modernizr.sessionstorage) {
-                    tests['storage'] = Boolean(true);
-                    tests.storage.local = Modernizr.localstorage;
-                    tests.storage.session = Modernizr.sessionstorage;
-                } else {
-                    tests['storage'] = false;
-                }
 
                 // Caution, weirdness ahead. Tests in order of preference, future tests should use increasing numbers. Do not change existing constants.
                 // To deprecate a test, move it to the bottom of the list. To make it obsolete, comment it out.

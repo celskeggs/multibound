@@ -390,47 +390,6 @@ var Sburb = (function (Sburb) {
         return queries;
     };
 
-//serialize character to XML
-    Sburb.Character.prototype.serialize = function (output) {
-        output = output.concat("\n<character name='" + this.name +
-            "' x='" + this.x +
-            "' y='" + this.y +
-            "' width='" + this.width +
-            "' height='" + this.height +
-            "' state='" + this.state +
-            "' facing='" + this.facing);
-        if (!this.bootstrap) {
-            output = output.concat("' sx='" + this.animations.walkFront.x +
-                "' sy='" + this.animations.walkFront.y +
-                "' sWidth='" + this.animations.walkFront.colSize +
-                "' sHeight='" + this.animations.walkFront.rowSize +
-                "' sheet='" + this.animations.walkFront.sheet.name);
-        } else {
-            output = output.concat("' bootstrap='true");
-        }
-        if (this.following) {
-            output = output.concat("' following='" + this.following.name + "");
-        }
-        if (this.follower) {
-            output = output.concat("' follower='" + this.follower.name + "");
-        }
-        output = output.concat("'>");
-        for (var animation in this.animations) {
-            if (!this.animations.hasOwnProperty(animation)) continue;
-            var anim = this.animations[animation];
-            if (this.bootstrap || (anim.name.indexOf("idle") == -1 && anim.name.indexOf("walk") == -1)) {
-                output = anim.serialize(output);
-            }
-        }
-        for (var i = 0; i < this.actions.length; i++) {
-            output = this.actions[i].serialize(output);
-        }
-
-        output = output.concat("\n</character>");
-        return output;
-    };
-
-
     Sburb.Character.prototype.isNPC = function () {
         return this.animations.walkFront.frameInterval == 12;
     };

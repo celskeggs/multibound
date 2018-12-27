@@ -247,33 +247,9 @@ var Sburb = (function (Sburb) {
         return true;
     };
 
-//serialize this Fighter to XML
-    Sburb.Fighter.prototype.serialize = function (output) {
-        var animationCount = 0;
-        for (var anim in this.animations) {
-            if (!this.animations.hasOwnProperty(anim)) continue;
-            animationCount++;
-        }
-        output = output.concat("<fighter " +
-            Sburb.serializeAttributes(this, "name", "x", "y", "width", "height", "facing") +
-            (animationCount > 1 ? "state='" + this.state + "' " : "") +
-            ">");
-        for (var animation in this.animations) {
-            if (!this.animations.hasOwnProperty(animation)) continue;
-            output = this.animations[animation].serialize(output);
-        }
-        for (var i = 0; i < this.actions.length; i++) {
-            output = this.actions[i].serialize(output);
-        }
-        output = output.concat("</fighter>");
-        return output;
-    };
-
-
 //////////////////////////////////////////
 //Related Utility Functions
 //////////////////////////////////////////
-
 
     Sburb.parseFighter = function (spriteNode, assetFolder) {
         var attributes = spriteNode.attributes;

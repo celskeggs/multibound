@@ -113,9 +113,6 @@ var Sburb = (function (Sburb) {
             this.time--;
             return this.time <= 0;
         };
-        this.serialize = function () {
-            return "time," + this.time;
-        }
     };
 
 //Check if the sprite's animation has played

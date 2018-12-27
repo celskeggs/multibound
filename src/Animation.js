@@ -332,39 +332,6 @@ var Sburb = (function (Sburb) {
         return new Sburb.Animation(this.name, this.sheet, (x ? x : 0) + this.x, (y ? y : 0) + this.y, this.colSize, this.rowSize, this.startPos, this.length, this.frameInterval, this.loopNum, this.followUp, this.flipX, this.flipY, this.sliced, this.numCols, this.numRows);
     };
 
-//serialize this Animation to XML
-    Sburb.Animation.prototype.serialize = function (output) {
-
-        var frameInterval = "";
-        var firstInterval = true;
-
-        if (this.frameIntervals) {
-            for (var interval in this.frameIntervals) {
-                if (!this.frameIntervals.hasOwnProperty(interval)) continue;
-                frameInterval = frameInterval + (firstInterval ? "" : ",") + interval + ":" + this.frameIntervals[interval];
-                firstInterval = false;
-            }
-        } else if (this.frameInterval !== 1) {
-            frameInterval = this.frameInterval;
-        }
-
-        output = output.concat("\n<animation " +
-            ("sheet='" + (this.sheet.name ? this.sheet.name : this.sheet) + "' ") +
-            ((this.name != "image") ? "name='" + this.name + "' " : "") +
-            Sburb.serializeAttributes(this, "x", "y") +
-            ((this.rowSize != this.sheet.height) ? "rowSize='" + this.rowSize + "' " : "") +
-            ((this.colSize != this.sheet.width) ? "colSize='" + this.colSize + "' " : "") +
-            Sburb.serializeAttribute(this, "startPos") +
-            ((this.length != 1) ? "length='" + this.length + "' " : "") +
-            ((frameInterval !== "") ? "frameInterval='" + frameInterval + "' " : "") +
-            ((this.loopNum != -1) ? "loopNum='" + this.loopNum + "' " : "") +
-            Sburb.serializeAttributes(this, "folowUp", "flipX", "flipY") +
-            (this.sliced ? ("sliced='true' numCols='" + this.numCols + "' numRows='" + this.numRows + "' ") : ("")) +
-            " />");
-        return output;
-    };
-
-
 ///////////////////////////////////////
 //Related Utility functions
 ///////////////////////////////////////

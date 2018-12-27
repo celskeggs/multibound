@@ -24,27 +24,6 @@ var Sburb = (function (Sburb) {
         return false;
     };
 
-    Sburb.ActionQueue.prototype.serialize = function (output) {
-        if (!this.curAction) {
-            return "";
-        }
-        var groupString = "";
-        for (var i = 0; i < this.groups.length; i++) {
-            groupString += ((i > 0) ? ":" : "") + this.groups[i];
-        }
-        output = output.concat("\n<actionQueue " + Sburb.serializeAttributes(this, "id", "noWait", "paused")
-            + (groupString.length == 0 ? "" : " groups='" + groupString + "'") + ">");
-
-        output = this.curAction.serialize(output);
-        if (this.trigger) {
-            output = this.trigger.serialize(output);
-        }
-
-        output = output.concat("</actionQueue>");
-        return output;
-    };
-
-
 //////////////////////////////////////////////////
 //Related utility functions
 //////////////////////////////////////////////////

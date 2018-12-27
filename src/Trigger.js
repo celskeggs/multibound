@@ -72,30 +72,6 @@ var Sburb = (function (Sburb) {
         }
     };
 
-//Serialize the Trigger to XML
-    Sburb.Trigger.prototype.serialize = function (output) {
-        output = output.concat("\n<trigger" +
-            (this.restart ? " restart='true'" : "") +
-            (this.detonate ? " detonate='true'" : "") +
-            (this.operator ? " operator='" + this.operator + "'" : "") +
-            ">");
-        for (var i = 0; i < this.info.length; i++) {
-            if (this.events[i].serialize) {
-                output = output.concat("<args>" + escape(this.events[i].serialize()) + "</args>");
-            } else {
-                output = output.concat("<args>" + escape(this.info[i]) + "</args>");
-            }
-        }
-        if (this.action) {
-            output = this.action.serialize(output);
-        }
-        if (this.followUp) {
-            output = this.followUp.serialize(output);
-        }
-        output = output.concat("\n</trigger>");
-        return output;
-    };
-
     Sburb.Trigger.prototype.operatorAND = function () {
         var result = true;
         for (var i = 0; i < this.events.length; i++) {

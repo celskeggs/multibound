@@ -297,44 +297,6 @@ var Sburb = (function (Sburb) {
         return null;
     };
 
-//serialize the room to XML
-    Sburb.Room.prototype.serialize = function (output) {
-        output = output.concat("\n<room name='" + this.name +
-            "' width='" + this.width +
-            "' height='" + this.height +
-            (this.walkableMap ? ("' walkableMap='" + this.walkableMap.name) : "") +
-            (this.mapScale != 4 ? ("' mapScale='" + this.mapScale) : "") +
-            "' >");
-        output = output.concat("\n<paths>");
-        for (var i = 0; i < this.walkables.length; i++) {
-            var walkable = this.walkables[i];
-            output = output.concat("\n<walkable path='" + walkable.name + "'/>");
-        }
-        for (var i = 0; i < this.unwalkables.length; i++) {
-            var unwalkable = this.unwalkables[i];
-            output = output.concat("\n<unwalkable path='" + unwalkable.name + "'/>");
-        }
-        for (var i = 0; i < this.motionPaths.length; i++) {
-            var motionPath = this.motionPaths[i];
-            output = output.concat("\n<motionpath path='" + motionPath.path.name + "' xtox='" + motionPath.xtox + "' xtoy='" + motionPath.xtoy +
-                "' ytox='" + motionPath.ytox + "' ytoy='" + motionPath.ytoy + "' dx='" + motionPath.dx + "' dy='" + motionPath.dy + "'/>");
-        }
-        output = output.concat("\n</paths>");
-        output = output.concat("\n<triggers>");
-
-        for (var i = 0; i < this.triggers.length; i++) {
-            output = this.triggers[i].serialize(output);
-        }
-        output = output.concat("\n</triggers>");
-        for (var i = 0; i < this.sprites.length; i++) {
-            output = this.sprites[i].serialize(output);
-        }
-
-        output = output.concat("\n</room>");
-        return output;
-    };
-
-
 ///////////////////////////////////////////////
 //Related Utility Functions
 ///////////////////////////////////////////////

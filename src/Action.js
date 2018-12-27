@@ -39,30 +39,6 @@ var Sburb = (function (Sburb) {
         return new Sburb.Action(this.command, this._info, this.name, this.sprite, this.followUp, this.noWait, this.noDelay, this.times, this.soft, this.silent);
     };
 
-//Serialize to XML (see Serialization.js)
-    Sburb.Action.prototype.serialize = function (output) {
-        output = output.concat("\n<action " +
-            "command='" + this.command +
-            (this.sprite ? "' sprite='" + this.sprite : "") +
-            (this.name ? "' name='" + escape(this.name) : "") +
-            (this.noWait ? "' noWait='" + this.noWait : "") +
-            (this.noDelay ? "' noDelay='" + this.noDelay : "") +
-            (this.soft ? "' soft='" + this.soft : "") +
-            (this.silent ? "' silent='" + this.silent : "") +
-            (this.times != 1 ? "' times='" + this.times : "") +
-            "'>");
-        if (typeof (this._info) == "string") {
-            output = output.concat('<args>' + escape(this._info.trim()) + '</args>');
-        } else if (this._info.name) {
-            output = output.concat('<args body="' + this._info.name + '" />');
-        }
-        if (this.followUp) {
-            output = this.followUp.serialize(output);
-        }
-        output = output.concat("</action>");
-        return output;
-    };
-
 
 //////////////////////////////////////////////////
 //Related utility functions

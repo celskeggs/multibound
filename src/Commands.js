@@ -513,45 +513,7 @@ var Sburb = (function (Sburb) {
         Sburb.curRoom.removeSprite(sprite);
     };
 
-//Save state to client storage
-//syntax: isAuto, useLocal
-    commands.save = function (info) {
-        var params = parseParams(info);
-        var auto = params.length > 0 && params[0] == "true";
-        var local = params.length > 1 && params[1] == "true";
-        Sburb.saveStateToStorage(Sburb.char.name + ", " + Sburb.curRoom.name, auto, local);
-    };
-
-//Load state from client storage
-//syntax: isAuto, useLocal
-    commands.load = function (info) {
-        var params = parseParams(info);
-        var auto = params.length > 0 && params[0] == "true";
-        var local = params.length > 1 && params[1] == "true";
-        Sburb.loadStateFromStorage(auto, local);
-//	Sburb.saveStateToStorage(Sburb.char.name+", "+Sburb.curRoom.name,auto,local);
-    };
-
-//Display save/load options
-//syntax: useLocal
-    commands.saveOrLoad = function (info) {
-        var params = parseParams(info);
-        var local = params.length > 0 && params[0] == "true";
-        var actions = [];
-        if (Sburb.isStateInStorage(false, local)) {
-            actions.push(new Sburb.Action("load", "false, " + local, "Load " + Sburb.getStateDescription(false)));
-        }
-        if (Sburb.isStateInStorage(true, local)) {
-            actions.push(new Sburb.Action("load", "true, " + local, "Load " + Sburb.getStateDescription(true)));
-        }
-        if (Sburb.tests.storage) {
-            actions.push(new Sburb.Action("save", "false," + local, "Save"));
-        }
-        actions.push(new Sburb.Action("cancel", null, "Cancel"));
-        Sburb.chooser.choices = actions;
-        var stagePos = Sburb.document.getStagePos();
-        Sburb.chooser.beginChoosing(stagePos.x + 20, stagePos.y + 50);
-    };
+    // TODO: find any uses of commands.save, commands.load, commands.saveOrLoad
 
 //Change global game state
 //syntax: gameState, value
