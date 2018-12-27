@@ -90,7 +90,9 @@ var Sburb = (function (Sburb) {
 //Play the given sound
 //syntax: soundName
     commands.playSound = function (info) {
-        Sburb.playSound(new Sburb.Sound(Sburb.assets[info.trim()]));
+        sound = new Sburb.Sound(Sburb.assets[info.trim()]);
+        sound.stop();
+        sound.play();
     };
 
 //Play the given effect and the given location
@@ -140,8 +142,9 @@ var Sburb = (function (Sburb) {
     commands.presentAction = commands.presentActions = function (info) {
         var actions = parseActionString(info);
         Sburb.chooser.choices = actions;
-        Sburb.chooser.beginChoosing(Sburb.Stage.x + 20, Sburb.Stage.y + 50);
-        //Sburb.Stage is the true position of the view. Sburb.cam is simply the desired position
+        var stagePos = Sburb.document.getStagePos();
+        Sburb.chooser.beginChoosing(stagePos.x + 20, stagePos.y + 50);
+        //document.getStagePos() is the true position of the view. Sburb.cam is simply the desired position
     };
 
 
@@ -497,8 +500,9 @@ var Sburb = (function (Sburb) {
     commands.addOverlay = function (info) {
         var params = parseParams(info);
         var sprite = Sburb.sprites[params[0]];
-        sprite.x = Sburb.Stage.x;
-        sprite.y = Sburb.Stage.y;
+        var stagePos = Sburb.document.getStagePos();
+        sprite.x = stagePos.x;
+        sprite.y = stagePos.y;
         Sburb.curRoom.addSprite(sprite);
     };
 
@@ -546,7 +550,8 @@ var Sburb = (function (Sburb) {
         }
         actions.push(new Sburb.Action("cancel", null, "Cancel"));
         Sburb.chooser.choices = actions;
-        Sburb.chooser.beginChoosing(Sburb.Stage.x + 20, Sburb.Stage.y + 50);
+        var stagePos = Sburb.document.getStagePos();
+        Sburb.chooser.beginChoosing(stagePos.x + 20, stagePos.y + 50);
     };
 
 //Change global game state
@@ -608,7 +613,8 @@ var Sburb = (function (Sburb) {
         actions.push(new Sburb.Action("openDirect", url + "," + text, "Go To " + text));
         actions.push(new Sburb.Action("cancel", null, "Cancel"));
         Sburb.chooser.choices = actions;
-        Sburb.chooser.beginChoosing(Sburb.Stage.x + 200, Sburb.Stage.y + 250);
+        var stagePos = Sburb.document.getStagePos();
+        Sburb.chooser.beginChoosing(stagePos.x + 200, stagePos.y + 250);
     };
 
     commands.openDirect = function (info) {

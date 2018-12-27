@@ -256,8 +256,8 @@ var Sburb = (function (Sburb) {
             this.oldX = this.x;
             this.oldY = this.y;
         }
-        var minX = Sburb.Stage.scaleX;
-        var minY = Sburb.Stage.scaleY;
+        var minX = Sburb.document.getScale();
+        var minY = minX;
         while (Math.abs(vx) >= minX || Math.abs(vy) >= minY) {
             var dx = 0;
             var dy = 0;

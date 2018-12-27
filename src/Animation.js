@@ -98,12 +98,12 @@ var Sburb = (function (Sburb) {
 
 //draw the animation
     Sburb.Animation.prototype.drawNormal = function (x, y) {
-        var Stage = Sburb.Stage;
         var stage = Sburb.stage;
-        var stageX = Stage.offset ? Stage.x : 0;
-        var stageY = Stage.offset ? Stage.y : 0;
-        var stageWidth = Stage.width;
-        var stageHeight = Stage.height;
+        var stagePos = Sburb.document.getOffsetPos();
+        var stageX = stagePos.x;
+        var stageY = stagePos.y;
+        var stageWidth = stagePos.width;
+        var stageHeight = stagePos.height;
 
         if (this.flipX) {
             stageX = -stageX - stageWidth;
@@ -114,8 +114,9 @@ var Sburb = (function (Sburb) {
             y = -y;
         }
 
-        x = Math.round((this.x + x) / Stage.scaleX) * Stage.scaleX;
-        y = Math.round((this.y + y) / Stage.scaleY) * Stage.scaleY;
+        var stageScale = Sburb.document.getScale();
+        x = Math.round((this.x + x) / stageScale) * stageScale;
+        y = Math.round((this.y + y) / stageScale) * stageScale;
 
         var colNum = ((this.startPos + this.curFrame) % this.numCols);
         var rowNum = (Math.floor((this.startPos + this.curFrame - colNum) / this.numCols));
@@ -183,12 +184,12 @@ var Sburb = (function (Sburb) {
     };
 
     Sburb.Animation.prototype.drawSliced = function (x, y) {
-        var Stage = Sburb.Stage;
         var stage = Sburb.stage;
-        var stageX = Stage.offset ? Stage.x : 0;
-        var stageY = Stage.offset ? Stage.y : 0;
-        var stageWidth = Stage.width;
-        var stageHeight = Stage.height;
+        var stagePos = Sburb.document.getOffsetPos();
+        var stageX = stagePos.x;
+        var stageY = stagePos.y;
+        var stageWidth = stagePos.width;
+        var stageHeight = stagePos.height;
 
         if (this.flipX) {
             stageX = -stageX - stageWidth;
@@ -199,9 +200,9 @@ var Sburb = (function (Sburb) {
             y = -y;
         }
 
-
-        x = Math.round((this.x + x) / Stage.scaleX) * Stage.scaleX;
-        y = Math.round((this.y + y) / Stage.scaleY) * Stage.scaleY;
+        var stageScale = Sburb.document.getScale();
+        x = Math.round((this.x + x) / stageScale) * stageScale;
+        y = Math.round((this.y + y) / stageScale) * stageScale;
 
         var minCol = Math.floor((stageX - x) / this.colSize);
         var maxCol = Math.floor((stageX + stageWidth - x) / this.colSize);

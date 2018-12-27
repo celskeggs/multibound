@@ -35,7 +35,7 @@ var Sburb = (function (Sburb) {
         var mouseDown = Sburb.Mouse.down;
         this.clicked = false;
         if (this.hitsPoint(x - this.width / 2, y - this.height / 2)) {
-            Sburb.Stage.style.cursor = "pointer";
+            Sburb.document.setCursor("pointer");
         }
         if (mouseDown) {
             if (!this.mousePressed) {

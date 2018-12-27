@@ -33,10 +33,11 @@ var Sburb = (function (Sburb) {
 
 
         var out = document.getElementById("serialText");
+        var scale = Sburb.document.getScale();
         var output = "<sburb" +
             " char='" + char.name +
             (Sburb.bgm ? "' bgm='" + Sburb.bgm.asset.name + (Sburb.bgm.startLoop ? "," + Sburb.bgm.startLoop : "") : "") +
-            (Sburb.Stage.scaleX != 1 ? "' scale='" + Sburb.Stage.scaleX : "") +
+            (scale != 1 ? "' scale='" + scale : "") +
             (Sburb.nextQueueId > 0 ? "' nextQueueId='" + Sburb.nextQueueId : "") +
             (Sburb.assetManager.resourcePath ? ("' resourcePath='" + Sburb.assetManager.resourcePath) : "") +
             (Sburb.assetManager.levelPath ? ("' levelPath='" + Sburb.assetManager.levelPath) : "") +
@@ -950,7 +951,7 @@ var Sburb = (function (Sburb) {
 
         var scale = rootInfo.getNamedItem("scale");
         if (scale) {
-            Sburb.Stage.scaleX = Sburb.Stage.scaleY = parseInt(scale.value);
+            Sburb.document.setScale(parseInt(scale.value));
         }
 
         var nextQueueId = rootInfo.getNamedItem("nextQueueId");
@@ -1033,8 +1034,9 @@ var Sburb = (function (Sburb) {
             Sburb.dialoger = {};
         }
         if (!Sburb.dialoger.dialogSpriteLeft) {
-            Sburb.dialoger.dialogSpriteLeft = new Sburb.Sprite("dialogSprite", -1000, Sburb.Stage.height, 0, 0);
-            Sburb.dialoger.dialogSpriteRight = new Sburb.Sprite("dialogSprite", Sburb.Stage.width + 1000, Sburb.Stage.height, 0, 0);
+            var stagePos = Sburb.document.getStagePos();
+            Sburb.dialoger.dialogSpriteLeft = new Sburb.Sprite("dialogSprite", -1000, stagePos.height, 0, 0);
+            Sburb.dialoger.dialogSpriteRight = new Sburb.Sprite("dialogSprite", stagePos.width + 1000, stagePos.height, 0, 0);
         }
         var animations = dialogSprites.getElementsByTagName("animation");
         for (var i = 0; i < animations.length; i++) {

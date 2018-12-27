@@ -92,7 +92,8 @@ var Sburb = (function (Sburb) {
 
     Sburb.AssetManager.prototype.draw = function () {
         Sburb.stage.fillStyle = "rgb(0,0,0)";
-        Sburb.stage.fillRect(-3, -3, Sburb.Stage.width + 6, Sburb.Stage.height + 6);
+        var stagePos = Sburb.document.getStagePos();
+        Sburb.stage.fillRect(-3, -3, stagePos.width + 6, stagePos.height + 6);
         if (this.loaded["preloaderBG"]) {
             var preloaderBG = Sburb.assets["preloaderBG"];
             Sburb.stage.drawImage(preloaderBG, 0, 0, preloaderBG.width, preloaderBG.height, 0, 0, preloaderBG.width, preloaderBG.height);
@@ -107,10 +108,10 @@ var Sburb = (function (Sburb) {
         } else {
             percent = Math.floor((this.totalLoaded / this.totalAssets) * 100);
         }
-        Sburb.stage.fillText(percent + "%", Sburb.Stage.width / 2, Sburb.Stage.height - 50);
+        Sburb.stage.fillText(percent + "%", stagePos.width / 2, stagePos.height - 50);
         if (Sburb.tests.loading == 0) {
             // Warn the user that we have no clue what's going on
-            Sburb.stage.fillText("Warning: File loading is unreliable. Use a newer browser, like Chrome.", Sburb.Stage.width / 2, Sburb.Stage.height - 35);
+            Sburb.stage.fillText("Warning: File loading is unreliable. Use a newer browser, like Chrome.", stagePos.width / 2, stagePos.height - 35);
         }
         if (this.error.length) {
             Sburb.stage.textAlign = "left";
@@ -125,7 +126,7 @@ var Sburb = (function (Sburb) {
                     this.failed = [];
                 } else {
                     Sburb.stage.font = "18px Verdana";
-                    Sburb.stage.fillText("Press SPACE to reload failed assets", Sburb.Stage.width / 2, Sburb.Stage.height - 70);
+                    Sburb.stage.fillText("Press SPACE to reload failed assets", stagePos.width / 2, stagePos.height - 70);
                 }
             }
         }

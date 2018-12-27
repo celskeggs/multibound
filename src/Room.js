@@ -99,30 +99,12 @@ var Sburb = (function (Sburb) {
 
 //perform any intialization
     Sburb.Room.prototype.enter = function () {
-
         if (this.walkableMap) {
-            var mapCanvas = Sburb.Map;
-
-            var drawWidth = mapCanvas.width = this.walkableMap.width;
-            var drawHeight = mapCanvas.height = this.walkableMap.height;
-            var ctx = mapCanvas.getContext("2d");
+            var drawWidth = this.walkableMap.width;
+            var drawHeight = this.walkableMap.height;
+            var ctx = Sburb.document.prepareNewMap(drawWidth, drawHeight);
             ctx.drawImage(this.walkableMap, 0, 0, drawWidth, drawHeight, 0, 0, drawWidth, drawHeight);
-
             this.mapData = ctx.getImageData(0, 0, drawWidth, drawHeight).data;
-            /*this.mapData = new Uint8Array(drawWidth*drawHeight);
-            for(var x=0;x<drawWidth;x+=this.blockSize){
-                var width = Math.min(this.blockSize,drawWidth-x);
-                for(var y=0;y<drawHeight;y+=this.blockSize){
-                    var height = Math.min(this.blockSize,drawHeight-y);
-                    var data = ctx.getImageData(x,y,width,height).data;
-                    for(var j=0;j<height;j++){
-                        for(var i=0;i<width;i++){
-
-                            this.mapData[x+i+(y+j)*drawWidth] = data[(i+j*width)*4];
-                        }
-                    }
-                }
-            }*/
         }
     };
 

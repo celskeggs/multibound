@@ -21,10 +21,7 @@ var Sburb = (function (Sburb) {
 
     Sburb.name = 'Jterniabound';
     Sburb.version = '1.0';
-    Sburb.Container = null; //"deploy" div
-    Sburb.Game = null; //the game div
-    Sburb.Map = null; //the map div
-    Sburb.Stage = null; //the canvas, we're gonna load it up with a bunch of flash-like game data like fps and scale factors
+    Sburb.document = null;
     Sburb.Bins = {}; //the various bin divs
     Sburb.cam = {x: 0, y: 0};
     Sburb.stage = null; //its context
@@ -62,90 +59,17 @@ var Sburb = (function (Sburb) {
 
     Sburb.updateLoop = null; //the main updateLoop, used to interrupt updating
 
-    Sburb.initialize = function (div, levelName, includeDevTools) {
-        // only calls the callback if everything works
-        Libs.Compat.testCompat(levelName, function(tests) {
-            Sburb.tests = tests;
-            Sburb.initializeReal(div, levelName, includeDevTools);
-        }, function(errors) {
-            // Display what failed
-            var deploy = '<div style="padding-left: 0; padding-right: 0; margin-left: auto; margin-right: auto; display: block; width:650px; height:450px; overflow: auto;">';
-            deploy += '<p style="font-weight: bold;">Your browser is too old. Here are the problems we found:</p>';
-            for (var i = 0; i < errors.length; i++)
-                deploy += '<p>' + errors[i] + '</p>';
-            deploy += '<p>Maybe try Chrome instead?</p>';
-            deploy += '</div>';
-            document.getElementById(div).innerHTML = deploy;
-        });
-    };
+    function createElements(div, mouseDown, mouseUp, mouseMove) {
+        Sburb.document = new Libs.Document(document.getElementById(div));
+        Sburb.document.registerMouseEvents(mouseDown, mouseUp, mouseMove);
+        Sburb.document.registerKeyEvents(_onkeydown, _onkeyup);
 
-    Sburb.initializeReal = function (div, levelName, includeDevTools) {
-        var deploy = document.createElement('div');
-        deploy.style.position = "relative";
-        deploy.style.padding = "0";
-        deploy.style.margin = "auto";
+        // TODO: fix these
+        Sburb.Bins["font"] = Sburb.document.fontDiv;
+        Sburb.Bins["gif"] = Sburb.document.gifDiv;
+    }
 
-        var gameDiv = document.createElement('div');
-        gameDiv.id = "SBURBgameDiv";
-        gameDiv.onkeydown = _onkeydown;
-        gameDiv.onkeyup = _onkeyup;
-        gameDiv.style.position = "absolute";
-        gameDiv.style.zIndex = "100";
-        deploy.appendChild(gameDiv);
-
-        var fontDiv = document.createElement('div');
-        fontDiv.id = "SBURBfontBin";
-        deploy.appendChild(fontDiv);
-
-        var gifDiv = document.createElement('div');
-        gifDiv.id = "SBURBgifBin";
-        gifDiv.style.width = "0";
-        gifDiv.style.height = "0";
-        gifDiv.style.overflow = "hidden";
-        deploy.appendChild(gifDiv);
-
-        var gameCanvas = document.createElement("canvas");
-        gameCanvas.id = "SBURBStage";
-        gameCanvas.onmousedown = function (e) {
-            Sburb.onMouseDown(e, this);
-        };
-        gameCanvas.onmouseup = function (e) {
-            Sburb.onMouseUp(e, this);
-        };
-        gameCanvas.onmousemove = function (e) {
-            Sburb.onMouseMove(e, this);
-        };
-        gameCanvas.tabIndex = 0;
-        gameCanvas.scaleX = gameCanvas.scaleY = 3;
-        gameCanvas.x = gameCanvas.y = 0;
-        gameCanvas.fps = 30;
-        gameCanvas.fade = 0;
-        gameCanvas.fadeRate = 0.1;
-        gameCanvas.innerText = "ERROR: Your browser is too old to display this content!";
-        gameDiv.appendChild(gameCanvas);
-
-        var mapCanvas = document.createElement("canvas");
-        mapCanvas.id = "SBURBMapCanvas";
-        mapCanvas.width = 1;
-        mapCanvas.height = 1;
-        mapCanvas.style.display = "none";
-        gameDiv.appendChild(mapCanvas);
-
-        document.getElementById(div).appendChild(deploy);
-
-        // Copy local variables into Sburb
-        Sburb.Container = deploy;
-        Sburb.Game = gameDiv;
-        Sburb.Map = mapCanvas;
-        Sburb.Stage = gameCanvas;
-        Sburb.Bins["font"] = fontDiv;
-        Sburb.Bins["gif"] = gifDiv;
-
-        // Set default dimensions
-        Sburb.setDimensions(650, 450);
-
-        Sburb.stage = Sburb.Stage.getContext("2d");
-        Sburb.Stage.onblur = _onblur;
+    function initializeReal(div, levelName) {
         Sburb.chooser = new Sburb.Chooser();
         Sburb.dialoger = null;
         Sburb.assetManager = new Sburb.AssetManager();
@@ -159,25 +83,44 @@ var Sburb = (function (Sburb) {
         Sburb.pressed = {};
         Sburb.pressedOrder = [];
 
+        createElements(div, Sburb.onMouseDown, Sburb.onMouseUp, Sburb.onMouseMove);
+
+        // Set default dimensions
+        Sburb.setDimensions(650, 450);
+
+        Sburb.stage = Sburb.document.getStageContext();
+        Sburb.document.registerBlurEvent(_onblur);
+
         Sburb.loadSerialFromXML(levelName);
+    }
+
+    Sburb.initialize = function (div, levelName) {
+        // only calls the callback if everything works
+        Libs.Compat.testCompat(levelName, function(tests) {
+            Sburb.tests = tests;
+            initializeReal(div, levelName);
+        }, function(errors) {
+            // Display what failed
+            var deploy = '<div style="padding-left: 0; padding-right: 0; margin-left: auto; margin-right: auto; display: block; width:650px; height:450px; overflow: auto;">';
+            deploy += '<p style="font-weight: bold;">Your browser is too old. Here are the problems we found:</p>';
+            for (var i = 0; i < errors.length; i++)
+                deploy += '<p>' + errors[i] + '</p>';
+            deploy += '<p>Maybe try Chrome instead?</p>';
+            deploy += '</div>';
+            document.getElementById(div).innerHTML = deploy;
+        });
     };
 
     Sburb.setDimensions = function (width, height) {
-        if (width) {
-            Sburb.Container.style.width = width + "px";
-            Sburb.Stage.width = width;
-        }
-        if (height) {
-            Sburb.Container.style.height = height + "px";
-            Sburb.Stage.height = height;
-        }
+        Sburb.document.setDimensions(width, height);
     };
 
     function startUpdateProcess() {
         haltUpdateProcess();
         Sburb.assetManager.stop();
-        Sburb.updateLoop = setInterval(update, 1000 / Sburb.Stage.fps);
-        Sburb.drawLoop = setInterval(draw, 1000 / Sburb.Stage.fps);
+        var fps = Sburb.document.getFPS();
+        Sburb.updateLoop = setInterval(update, 1000 / fps);
+        Sburb.drawLoop = setInterval(draw, 1000 / fps);
     }
 
     function haltUpdateProcess() {
@@ -190,7 +133,6 @@ var Sburb = (function (Sburb) {
     }
 
     function update() {
-        //update stuff
         handleAudio();
         handleInputs();
         handleHud();
@@ -207,31 +149,33 @@ var Sburb = (function (Sburb) {
     }
 
     function draw() {
+        var stagePos = Sburb.document.getStagePos();
         Sburb.stage.save();
-        Sburb.Stage.offset = true;
-        Sburb.stage.translate(-Sburb.Stage.x, -Sburb.Stage.y);
+        Sburb.document.setOffset(true);
+        Sburb.stage.translate(-stagePos.x, -stagePos.y);
 
         Sburb.curRoom.draw();
 
         Sburb.stage.restore();
-        Sburb.Stage.offset = false;
+        Sburb.document.setOffset(false);
 
-        if (Sburb.Stage.fade > 0.1) {
-            Sburb.stage.fillStyle = "rgba(0,0,0," + Sburb.Stage.fade + ")";
-            Sburb.stage.fillRect(0, 0, Sburb.Stage.width, Sburb.Stage.height);
+        var fade = Sburb.document.getFade();
+        if (fade > 0.1) {
+            Sburb.stage.fillStyle = "rgba(0,0,0," + fade + ")";
+            Sburb.stage.fillRect(0, 0, stagePos.width, stagePos.height);
         }
 
         Sburb.dialoger.draw();
         drawHud();
 
         Sburb.stage.save();
-        Sburb.Stage.offset = true;
-        Sburb.stage.translate(-Sburb.Stage.x, -Sburb.Stage.y);
+        Sburb.document.setOffset(true);
+        Sburb.stage.translate(-stagePos.x, -stagePos.y);
 
         Sburb.chooser.draw();
 
         Sburb.stage.restore();
-        Sburb.Stage.offset = false;
+        Sburb.document.setOffset(false);
     }
 
     var _onkeydown = function (e) {
@@ -268,13 +212,6 @@ var Sburb = (function (Sburb) {
                 }
             }
         }
-        /* There is a theoretical race condition here
-           in which pressing a key within the milliseconds
-           between injecting the canvas into the dom
-           and initializing Sburb.pressed and Sburb.pressedOrder
-           could throw an exception.
-
-           I'm not too worried about it. -Fugi */
         if (!Sburb.pressed[e.keyCode])
             Sburb.pressedOrder.push(e.keyCode);
         Sburb.pressed[e.keyCode] = true;
@@ -287,25 +224,21 @@ var Sburb = (function (Sburb) {
     };
 
     var _onkeyup = function (e) {
-        // See _onkeydown for race condition warning
         if (Sburb.pressed[e.keyCode])
             Sburb.pressedOrder.destroy(e.keyCode);
         Sburb.pressed[e.keyCode] = false;
     };
 
     function purgeKeys() {
-        // See _onkeydown for race condition warning
         Sburb.pressed = {};
         Sburb.pressedOrder = [];
     }
 
     var _onblur = function (e) {
-        // See _onkeydown for race condition warning
         purgeKeys();
     };
 
     Sburb.onMouseMove = function (e, canvas) {
-        // See _onkeydown for race condition warning
         var point = relMouseCoords(e, canvas);
         Sburb.Mouse.x = point.x;
         Sburb.Mouse.y = point.y;
@@ -314,7 +247,8 @@ var Sburb = (function (Sburb) {
     Sburb.onMouseDown = function (e, canvas) {
         if (!Sburb.updateLoop) return; // Make sure we are loaded before trying to do things
         if (Sburb.engineMode == "strife" && hasControl()) {
-            Sburb.chooser.choices = Sburb.curRoom.queryActionsVisual(Sburb.char, Sburb.Stage.x + Sburb.Mouse.x, Sburb.Stage.y + Sburb.Mouse.y);
+            var stagePos = Sburb.document.getStagePos();
+            Sburb.chooser.choices = Sburb.curRoom.queryActionsVisual(Sburb.char, stagePos.x + Sburb.Mouse.x, stagePos.y + Sburb.Mouse.y);
             if (Sburb.chooser.choices.length > 0) {
                 Sburb.chooser.choices.push(new Sburb.Action("cancel", "cancel", "cancel"));
                 beginChoosing();
@@ -364,18 +298,15 @@ var Sburb = (function (Sburb) {
                 Sburb.musicStoppedFor = 0;
             }
             if (Sburb.bgm.asset.paused) {
-                //	console.log("The sound is paused??? THIS SHOULD NOT BE.");
                 Sburb.bgm.play();
             }
             Sburb.lastMusicTime = Sburb.bgm.asset.currentTime;
-        } else {
-            //console.log("The music doesn't exist!");
         }
     }
 
     function handleInputs() {
-        if (Sburb.Stage) {
-            Sburb.Stage.style.cursor = "default";
+        if (Sburb.document) { // TODO: is this conditional necessary?
+            Sburb.document.setCursor("default");
         }
         if (hasControl() && !Sburb.inputDisabled) {
             Sburb.char.handleInputs(Sburb.pressed, Sburb.pressedOrder);
@@ -409,26 +340,31 @@ var Sburb = (function (Sburb) {
 
     function focusCamera() {
         //need to divide these by scaleX and scaleY if repurposed
+        var stagePos = Sburb.document.getStagePos();
         if (!Sburb.destFocus) {
             if (Sburb.focus) {
-                Sburb.cam.x = Sburb.focus.x - Sburb.Stage.width / 2;
-                Sburb.cam.y = Sburb.focus.y - Sburb.Stage.height / 2;
+                Sburb.cam.x = Sburb.focus.x - stagePos.width / 2;
+                Sburb.cam.y = Sburb.focus.y - stagePos.height / 2;
             }
-        } else if (Math.abs(Sburb.destFocus.x - Sburb.cam.x - Sburb.Stage.width / 2) > 4 || Math.abs(Sburb.destFocus.y - Sburb.cam.y - Sburb.Stage.height / 2) > 4) {
-            Sburb.cam.x += (Sburb.destFocus.x - Sburb.Stage.width / 2 - Sburb.cam.x) / 5;
-            Sburb.cam.y += (Sburb.destFocus.y - Sburb.Stage.height / 2 - Sburb.cam.y) / 5;
+        } else if (Math.abs(Sburb.destFocus.x - Sburb.cam.x - stagePos.width / 2) > 4 || Math.abs(Sburb.destFocus.y - Sburb.cam.y - stagePos.height / 2) > 4) {
+            Sburb.cam.x += (Sburb.destFocus.x - stagePos.width / 2 - Sburb.cam.x) / 5;
+            Sburb.cam.y += (Sburb.destFocus.y - stagePos.height / 2 - Sburb.cam.y) / 5;
         } else {
             Sburb.focus = Sburb.destFocus;
             Sburb.destFocus = null;
         }
-        Sburb.Stage.x = Math.max(0, Math.min(Math.round(Sburb.cam.x / Sburb.Stage.scaleX) * Sburb.Stage.scaleX, Sburb.curRoom.width - Sburb.Stage.width));
-        Sburb.Stage.y = Math.max(0, Math.min(Math.round(Sburb.cam.y / Sburb.Stage.scaleX) * Sburb.Stage.scaleX, Sburb.curRoom.height - Sburb.Stage.height));
+        var scale = Sburb.document.getScale();
+        var nx = Math.max(0, Math.min(Math.round(Sburb.cam.x / scale) * scale, Sburb.curRoom.width - stagePos.width));
+        var ny = Math.max(0, Math.min(Math.round(Sburb.cam.y / scale) * scale, Sburb.curRoom.height - stagePos.height));
+        Sburb.document.setStagePos(nx, ny);
     }
 
     function handleRoomChange() {
+        var fade = Sburb.document.getFade();
+        var fadeRate = Sburb.document.getFadeRate();
         if (Sburb.destRoom || Sburb.fading) {
-            if (Sburb.Stage.fade < 1.1) {
-                Sburb.Stage.fade = Math.min(1.1, Sburb.Stage.fade + Sburb.Stage.fadeRate);
+            if (fade < 1.1) {
+                Sburb.document.setFade(Math.min(1.1, fade + fadeRate));
             } else if (Sburb.destRoom) {
                 var deltaX = Sburb.destX - Sburb.char.x;
                 var deltaY = Sburb.destY - Sburb.char.y;
@@ -447,8 +383,8 @@ var Sburb = (function (Sburb) {
             } else {
                 Sburb.fading = false;
             }
-        } else if (hasControl() && Sburb.Stage.fade > 0.01) {
-            Sburb.Stage.fade = Math.max(0.01, Sburb.Stage.fade - Sburb.Stage.fadeRate);
+        } else if (hasControl() && fade > 0.01) {
+            Sburb.document.setFade(Math.max(0.01, fade - fadeRate));
             //apparently alpha 0 is buggy?
         }
     }
@@ -623,11 +559,6 @@ var Sburb = (function (Sburb) {
 
     Sburb.playEffect = function (effect, x, y) {
         Sburb.curRoom.addEffect(effect.clone(x, y));
-    };
-
-    Sburb.playSound = function (sound) {
-        sound.stop();
-        sound.play();
     };
 
     Sburb.startUpdateProcess = startUpdateProcess;

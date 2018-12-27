@@ -422,7 +422,8 @@ var Sburb = (function (Sburb) {
         if (!dialogBox) {
             var boxAsset = Sburb.assets[box];
 
-            dialogBox = new Sburb.Sprite("dialogBox", Sburb.Stage.width + 1, 1000, boxAsset.width, boxAsset.height, null, null, 0);
+            var pos = Sburb.document.getStagePos();
+            dialogBox = new Sburb.Sprite("dialogBox", pos.width + 1, 1000, boxAsset.width, boxAsset.height, null, null, 0);
             dialogBox.addAnimation(new Sburb.Animation("image", boxAsset, 0, 0, boxAsset.width, boxAsset.height, 0, 1, 1));
             dialogBox.startAnimation("image");
         }

@@ -36,19 +36,19 @@ var Sburb = (function (Sburb) {
         }
         height = basis.lineHeight * this.choices.length + 10;
 
-        if (x < Sburb.Stage.x + 10) {
-            x = Sburb.Stage.x + 10;
+        var stage = Sburb.document.getStagePos();
+        if (x < stage.x + 10) {
+            x = stage.x + 10;
         }
-        if (y < Sburb.Stage.y + 10) {
-            y = Sburb.Stage.y + 10;
+        if (y < stage.y + 10) {
+            y = stage.y + 10;
         }
-        if (x + width > Sburb.Stage.x + Sburb.Stage.width - 10) {
-            x = Sburb.Stage.x + Sburb.Stage.width - width - 10;
+        if (x + width > stage.x + stage.width - 10) {
+            x = stage.x + stage.width - width - 10;
         }
-        if (y + height > Sburb.Stage.y + Sburb.Stage.height - 10) {
-            y = Sburb.Stage.y + Sburb.Stage.height - height - 10;
+        if (y + height > stage.y + stage.height - 10) {
+            y = stage.y + stage.height - height - 10;
         }
-
 
         this.choosing = true;
         this.choice = 0;
@@ -93,7 +93,8 @@ var Sburb = (function (Sburb) {
                 var curDialog = this.dialogs[i];
                 curDialog.showSubText(null, curDialog.end + 1);
                 if (i == this.choice) {
-                    if (this.time % Sburb.Stage.fps < Sburb.Stage.fps / 2) {
+                    var fps = Sburb.document.getFPS();
+                    if (this.time % fps < fps / 2) {
                         curDialog.start = 2;
                     } else {
                         curDialog.start = 0;
