@@ -21,7 +21,7 @@ and even their music. Often this is used to also link in their actual conversati
 			<action command='changeChar' noDelay='true'>
 				<args>meenah</args>
 				<action command='playSong' noDelay='true'>
-					<args>meenahSong,0</args>
+					<args>meenahSong</args>
 				</action>
 			</action>
 		</args>

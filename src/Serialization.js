@@ -21,10 +21,7 @@ var Sburb = (function (Sburb) {
             delete Sburb.sprites;
         }
         Sburb.rooms = {};
-        if (Sburb.bgm) {
-            Sburb.bgm.stop();
-            Sburb.bgm = null;
-        }
+        Sburb.haltBGM();
         for (var bin in Sburb.Bins) {
             if (!Sburb.Bins.hasOwnProperty(bin)) continue;
             Sburb.Bins[bin].innerHTML = "";
@@ -185,7 +182,6 @@ var Sburb = (function (Sburb) {
     }
 
     function loadDependencies(input) {
-
         var dependenciesNode = input.getElementsByTagName("dependencies")[0];
         if (dependenciesNode) {
             var dependencies = dependenciesNode.getElementsByTagName("dependency");
@@ -512,8 +508,7 @@ var Sburb = (function (Sburb) {
         }
         var bgm = rootInfo.getNamedItem("bgm");
         if (bgm) {
-            var params = bgm.value.split(",");
-            Sburb.changeBGM(Sburb.assets[params[0]], parseFloat(params.length > 1 ? params[1] : "0"));
+            Sburb.changeBGM(Sburb.assets[bgm.value]);
         }
 
         var initAction;
@@ -524,7 +519,6 @@ var Sburb = (function (Sburb) {
                 var tmp = input.childNodes[i];
                 if (tmp.tagName == "action" && tmp.attributes.getNamedItem("name").value == initActionName) {
                     initAction = Sburb.parseAction(tmp);
-
                 }
             }
             if (initAction) {

@@ -46,14 +46,11 @@ var Sburb = (function (Sburb) {
     Sburb.curAction = null; //the current action being performed
     Sburb.actionQueues = []; //additional queues for parallel actions
     Sburb.nextQueueId = 0; //the next created actionQueue, specified without a id, will get this number and increment it
-    Sburb.bgm = null; //the current background music
     Sburb.hud = null; //the hud; help and sound buttons
     Sburb.Mouse = {down: false, x: 0, y: 0}; //current recorded properties of the mouse
     Sburb.waitFor = null;
     Sburb.engineMode = "wander";
     Sburb.fading = false;
-    Sburb.lastMusicTime = -1;
-    Sburb.musicStoppedFor = 0;
     Sburb.loadingRoom = false; // Only load one room at a time
     Sburb.tests = null;
 
@@ -133,7 +130,7 @@ var Sburb = (function (Sburb) {
     }
 
     function update() {
-        handleAudio();
+        Sburb.handleBGM();
         handleInputs();
         handleHud();
 
@@ -281,27 +278,6 @@ var Sburb = (function (Sburb) {
         canvasX = event.pageX - totalOffsetX;
         canvasY = event.pageY - totalOffsetY;
         return {x: canvasX, y: canvasY};
-    }
-
-    function handleAudio() {
-        if (Sburb.bgm && Sburb.bgm.asset) {
-            if (Sburb.bgm.asset.ended || Sburb.bgm.asset.currentTime >= Sburb.bgm.asset.duration) {
-                Sburb.bgm.loop();
-            }
-            if (Sburb.lastMusicTime == Sburb.bgm.asset.currentTime) {
-                Sburb.musicStoppedFor++;
-                if (Sburb.musicStoppedFor > 4) {
-                    Sburb.bgm.asset.pause();
-                    Sburb.bgm.asset.play(); // asset.play() because sometimes this condition is true on startup
-                }
-            } else {
-                Sburb.musicStoppedFor = 0;
-            }
-            if (Sburb.bgm.asset.paused) {
-                Sburb.bgm.play();
-            }
-            Sburb.lastMusicTime = Sburb.bgm.asset.currentTime;
-        }
     }
 
     function handleInputs() {

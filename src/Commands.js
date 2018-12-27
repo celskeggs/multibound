@@ -74,9 +74,7 @@ var Sburb = (function (Sburb) {
 //Set the given song as the new background music
 //syntax: songName, loopingStartPoint (seconds)
     commands.playSong = function (info) {
-        var params = parseParams(info);
-
-        Sburb.changeBGM(Sburb.assets[params[0]], parseFloat(params[1]));
+        Sburb.changeBGM(Sburb.assets[info.trim()]);
     };
 
     commands.becomeNPC = function (info) {

@@ -3,15 +3,11 @@ var Sburb = (function (Sburb) {
 //Sound Class
 ///////////////////////////////////////
 
+    var globalVolume = 1;
+
 //Constructor
     Sburb.Sound = function (asset) {
-        if (asset) {
-            this.asset = asset;
-            var that = this;
-            window.addEventListener('beforeunload', function () {
-                that.pause();
-            });
-        }
+        this.asset = asset;
     };
 
 //play this sound
@@ -36,7 +32,7 @@ var Sburb = (function (Sburb) {
         } else if (pos) {
             this.asset.currentTime = pos;
         }
-        this.asset.volume = Sburb.globalVolume;
+        this.asset.volume = globalVolume;
         this.asset.play();
     };
 
@@ -61,49 +57,59 @@ var Sburb = (function (Sburb) {
 /////////////////////////////////////
 
 //constructor
-    function BGM(asset, startLoop) {
-        Sburb.Sound.call(this, asset);
-        this.startLoop = startLoop;
+    var bgm = null; //the current background music
 
-        asset.addEventListener('ended', function () {
-            asset.currentTime = startLoop;
-            asset.play();
-        }, false);
-    }
-
-    BGM.prototype = new Sburb.Sound();
-
-    //loop the sound
-    BGM.prototype.loop = function () {
-        this.play(this.startLoop);
-    };
-
-    Sburb.changeBGM = function (asset, startLoop) {
-        if (!startLoop) {
-            startLoop = 0;
-        }
-        if (Sburb.bgm) {
-            if (Sburb.bgm.asset == asset && Sburb.bgm.startLoop == startLoop) {
-                // maybe check for some kind of restart value
+    Sburb.changeBGM = function (asset) {
+        if (bgm) {
+            if (bgm.asset === asset) {
                 return;
             }
-            Sburb.bgm.stop();
+            bgm.stop();
         }
-        Sburb.bgm = new BGM(asset, startLoop);
-        Sburb.bgm.stop();
-        Sburb.bgm.play();
+        bgm = new Sburb.Sound(asset);
+        bgm.stop();
+        bgm.play();
     };
 
-    Sburb.globalVolume = 1;
-
     Sburb.getVolume = function() {
-        return Sburb.globalVolume;
+        return globalVolume;
     };
 
     Sburb.setVolume = function(volume) {
-        Sburb.globalVolume = volume;
-        if (Sburb.bgm) {
-            Sburb.bgm.asset.volume = volume;
+        globalVolume = volume;
+        if (bgm) {
+            bgm.asset.volume = volume;
+        }
+    };
+
+    Sburb.haltBGM = function() {
+        if (bgm) {
+            bgm.stop();
+            bgm = null;
+        }
+    };
+
+    var lastMusicTime = -1;
+    var musicStoppedFor = 0;
+
+    Sburb.handleBGM = function() {
+        if (bgm) {
+            if (bgm.asset.ended || bgm.asset.currentTime >= bgm.asset.duration) {
+                bgm.play(0);
+            }
+            if (lastMusicTime === bgm.asset.currentTime) {
+                musicStoppedFor++;
+                if (musicStoppedFor > 4) {
+                    bgm.asset.pause();
+                    bgm.asset.play(); // asset.play() because sometimes this condition is true on startup
+                }
+            } else {
+                musicStoppedFor = 0;
+            }
+            if (bgm.asset.paused) {
+                bgm.play();
+            }
+            lastMusicTime = bgm.asset.currentTime;
         }
     };
 
