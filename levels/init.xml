@@ -15,8 +15,7 @@ they'll just be rendered in snapped positions.
 
 char describes the start state of the game. The system will start in the
 room this sprite is found in with that sprite under the user's control. It
-must be a <character>. curRoom can also optionally be used to override that
-part of this behaviour.
+must be a <character>.
 
 bgm specifies what song if any to play at the start of the game.
 

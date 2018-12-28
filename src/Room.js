@@ -327,14 +327,6 @@ var Sburb = (function (Sburb) {
 
         Sburb.serialLoadRoomSprites(newRoom, roomNode.getElementsByTagName("sprite"), spriteFolder);
         Sburb.serialLoadRoomSprites(newRoom, roomNode.getElementsByTagName("character"), spriteFolder);
-        var paths = roomNode.getElementsByTagName("paths");
-        if (paths.length > 0) {
-            Sburb.serialLoadRoomPaths(newRoom, paths, assetFolder);
-        }
-        var triggers = roomNode.getElementsByTagName("triggers");
-        if (triggers.length > 0) {
-            Sburb.serialLoadRoomTriggers(newRoom, triggers, spriteFolder);
-        }
         return newRoom;
     };
 

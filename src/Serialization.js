@@ -277,15 +277,11 @@ var Sburb = (function (Sburb) {
             parseSprites(input);
             parseCharacters(input);
             parseRooms(input);
-            parseGameState(input);
 
             parseHud(input);
-            parseEffects(input);
 
             //should be last
             parseState(input);
-            //Relies on Sburb.nextQueueId being set when no Id is provided
-            parseActionQueues(input);
         }
 
         if (loadQueue.length == 0 && loadingDepth == 0) {
@@ -302,14 +298,6 @@ var Sburb = (function (Sburb) {
             if (dialogSprites.length > 0) {
                 serialLoadDialogSprites(dialogSprites[0], Sburb.assets);
             }
-        }
-    }
-
-    function parseEffects(input) {
-        var effects = input.getElementsByTagName("effects");
-
-        if (effects.length > 0) {
-            serialLoadEffects(effects[0], Sburb.assets, Sburb.effects);
         }
     }
 
@@ -420,39 +408,6 @@ var Sburb = (function (Sburb) {
         }
     }
 
-    function parseGameState(input) {
-        var gameStates = input.getElementsByTagName("gameState");
-        for (var i = 0; i < gameStates.length; i++) {
-            var gameState = gameStates[i];
-            var children = gameState.childNodes;
-            for (var j = 0; j < children.length; j++) {
-                var node = children[j];
-
-                if (node.nodeType === 3) //Text node, formatting node
-                    continue;
-
-                var key = node.tagName;
-                var value = node.firstChild.nodeValue;
-                Sburb.gameState[key] = value;
-            }
-        }
-    }
-
-    function parseActionQueues(input) {
-        var element = input.getElementsByTagName("actionQueues");
-        if (element.length == 0) {
-            return;
-        }
-        var actionQueues = element[0].childNodes;
-        for (var i = 0; i < actionQueues.length; i++) {
-            if (actionQueues[i].nodeName == "#text") {
-                continue;
-            }
-            var actionQueue = Sburb.parseActionQueue(actionQueues[i]);
-            Sburb.actionQueues.push(actionQueue);
-        }
-    }
-
     function parseState(input) {
         var rootInfo = input.attributes;
 
@@ -467,16 +422,7 @@ var Sburb = (function (Sburb) {
             Sburb.document.setScale(parseInt(scale.value));
         }
 
-        var nextQueueId = rootInfo.getNamedItem("nextQueueId");
-        if (nextQueueId) {
-            Sburb.nextQueueId = parseInt(nextQueueId.value);
-        }
-
-        var curRoom = rootInfo.getNamedItem("curRoom");
-        if (curRoom) {
-            Sburb.curRoom = Sburb.rooms[curRoom.value];
-            Sburb.curRoom.enter();
-        } else if (Sburb.curRoom == null && Sburb.char != null) {
+        if (Sburb.curRoom == null && Sburb.char != null) {
             for (var roomName in Sburb.rooms) {
                 if (!Sburb.rooms.hasOwnProperty(roomName)) continue;
                 var room = Sburb.rooms[roomName];
@@ -490,21 +436,6 @@ var Sburb = (function (Sburb) {
         var bgm = rootInfo.getNamedItem("bgm");
         if (bgm) {
             Sburb.changeBGM(Sburb.assets[bgm.value]);
-        }
-
-        var initAction;
-        var initActionName;
-        if (rootInfo.getNamedItem("startAction")) {
-            initActionName = rootInfo.getNamedItem("startAction").value;
-            for (var i = 0; i < input.childNodes.length; i++) {
-                var tmp = input.childNodes[i];
-                if (tmp.tagName == "action" && tmp.attributes.getNamedItem("name").value == initActionName) {
-                    initAction = Sburb.parseAction(tmp);
-                }
-            }
-            if (initAction) {
-                Sburb.performAction(initAction);
-            }
         }
     }
 
@@ -554,15 +485,6 @@ var Sburb = (function (Sburb) {
             Sburb.dialoger.dialogSpriteLeft.addAnimation(Sburb.parseAnimation(animations[i], assetFolder));
             Sburb.dialoger.dialogSpriteRight.addAnimation(Sburb.parseAnimation(animations[i], assetFolder));
         }
-
-    }
-
-    function serialLoadEffects(effects, assetFolder, effectsFolder) {
-        var animations = effects.getElementsByTagName("animation");
-        for (var i = 0; i < animations.length; i++) {
-            var newEffect = Sburb.parseAnimation(animations[i], assetFolder);
-            effectsFolder[newEffect.name] = newEffect;
-        }
     }
 
     function serialLoadRoomSprites(newRoom, roomSprites, spriteFolder) {
@@ -570,51 +492,10 @@ var Sburb = (function (Sburb) {
             var curSprite = roomSprites[j];
             var actualSprite = spriteFolder[curSprite.attributes.getNamedItem("name").value];
             newRoom.addSprite(actualSprite);
-
-        }
-    }
-
-    function serialLoadRoomPaths(newRoom, paths, assetFolder) {
-        var walkables = paths[0].getElementsByTagName("walkable");
-        for (var j = 0; j < walkables.length; j++) {
-            var node = walkables[j];
-            var attributes = node.attributes;
-            newRoom.addWalkable(assetFolder[attributes.getNamedItem("path").value]);
-        }
-
-        var unwalkables = paths[0].getElementsByTagName("unwalkable");
-        for (var j = 0; j < unwalkables.length; j++) {
-            var node = unwalkables[j];
-            var attributes = node.attributes;
-            newRoom.addUnwalkable(assetFolder[attributes.getNamedItem("path").value]);
-        }
-
-        var motionPaths = paths[0].getElementsByTagName("motionpath");
-        for (var j = 0; j < motionPaths.length; j++) {
-            var node = motionPaths[j];
-            var attributes = node.attributes;
-            newRoom.addMotionPath(assetFolder[attributes.getNamedItem("path").value],
-                attributes.getNamedItem("xtox") ? parseFloat(attributes.getNamedItem("xtox").value) : 1,
-                attributes.getNamedItem("xtoy") ? parseFloat(attributes.getNamedItem("xtoy").value) : 0,
-                attributes.getNamedItem("ytox") ? parseFloat(attributes.getNamedItem("ytox").value) : 0,
-                attributes.getNamedItem("ytoy") ? parseFloat(attributes.getNamedItem("ytoy").value) : 1,
-                attributes.getNamedItem("dx") ? parseFloat(attributes.getNamedItem("dx").value) : 0,
-                attributes.getNamedItem("dy") ? parseFloat(attributes.getNamedItem("dy").value) : 0);
-        }
-    }
-
-    function serialLoadRoomTriggers(newRoom, triggers) {
-        var candidates = triggers[0].childNodes;
-        for (var i = 0; i < candidates.length; i++) {
-            if (candidates[i].nodeName == "trigger") {
-                newRoom.addTrigger(Sburb.parseTrigger(candidates[i]));
-            }
         }
     }
 
     Sburb.serialLoadRoomSprites = serialLoadRoomSprites;
-    Sburb.serialLoadRoomPaths = serialLoadRoomPaths;
-    Sburb.serialLoadRoomTriggers = serialLoadRoomTriggers;
 
     return Sburb;
 })(Sburb || {});

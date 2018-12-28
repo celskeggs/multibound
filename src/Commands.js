@@ -17,19 +17,6 @@ var Sburb = (function (Sburb) {
         Sburb.dialoger.startDialog(info);
     };
 
-//Pick a random line of dialog
-//syntax: dialog syntax
-    commands.randomTalk = function (info) {
-        Sburb.dialoger.startDialog(info);
-        var randomNum = Math.floor(Math.random() * (Sburb.dialoger.queue.length + 1));
-        if (randomNum) {
-            Sburb.dialoger.queue = [Sburb.dialoger.queue[randomNum - 1]];
-            Sburb.dialoger.nextDialog();
-        } else {
-            Sburb.dialoger.queue = [];
-        }
-    };
-
 //Change the room and move the character to a new location in that room
 //syntax: roomName, newCharacterX, newCharacterY
     commands.changeRoom = function (info) {
@@ -531,19 +518,6 @@ var Sburb = (function (Sburb) {
         character.x = character.oldX;
         character.y = character.oldY;
     };
-//tryToTrigger the given triggers in order, if one succeeds, don't do the rest (they are like an else-if chain)
-//syntax: Sburbml trigger syntax
-    commands.try = function (info) {
-        var triggers = parseTriggerString(info);
-        for (var i = 0; i < triggers.length; i++) {
-            var trigger = triggers[i];
-            trigger.detonate = true;
-            if (trigger.tryToTrigger()) {
-                return;
-            }
-        }
-    };
-
 
 //make the character walk in the specified direction (Up, Down, Left, Right, None)
 //syntax: charName, direction
@@ -614,20 +588,6 @@ var Sburb = (function (Sburb) {
             }
         }
         return actions;
-    }
-
-    function parseTriggerString(string) {
-        var triggers = [];
-        string = "<triggers>" + string + "</triggers>";
-
-        var input = Sburb.parseXML(string);
-        for (var i = 0; i < input.childNodes.length; i++) {
-            var tmp = input.childNodes[i];
-            if (tmp.tagName == "trigger") {
-                triggers.push(Sburb.parseTrigger(tmp));
-            }
-        }
-        return triggers;
     }
 
     function parseURLstring(string) {

@@ -66,36 +66,5 @@ var Sburb = (function (Sburb) {
         }
     };
 
-    Sburb.parseActionQueue = function (node) {
-        var attributes = node.attributes;
-
-        var newAction = null;
-        var newId = 0;
-        var newGroups = null;
-        var newNoWait = false;
-        var newPaused = false;
-        var newTrigger = null;
-
-        var childNodes = node.childNodes;
-        for (var i = 0; i < childNodes.length; i++) {
-            if (childNodes[i].nodeName == "#text") {
-                continue;
-            }
-            if (childNodes[i].nodeName == "action") {
-                newAction = Sburb.parseAction(childNodes[i]);
-            } else {
-                newTrigger = Sburb.parseTrigger(childNodes[i]);
-            }
-        }
-
-        var temp;
-        newId = (temp = attributes.getNamedItem("id")) ? temp.value : (Sburb.nextQueueId++);
-        newGroups = (temp = attributes.getNamedItem("groups")) ? temp.value.split(":") : newGroups;
-        newNoWait = (temp = attributes.getNamedItem("noWait")) ? temp.value == "true" : newNoWait;
-        newPaused = (temp = attributes.getNamedItem("paused")) ? temp.value == "true" : newPaused;
-
-        return new Sburb.ActionQueue(newAction, newId, newGroups, newNoWait, newPaused, newTrigger);
-    };
-
     return Sburb;
 })(Sburb || {});
