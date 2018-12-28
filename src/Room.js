@@ -327,7 +327,6 @@ var Sburb = (function (Sburb) {
 
         Sburb.serialLoadRoomSprites(newRoom, roomNode.getElementsByTagName("sprite"), spriteFolder);
         Sburb.serialLoadRoomSprites(newRoom, roomNode.getElementsByTagName("character"), spriteFolder);
-        Sburb.serialLoadRoomSprites(newRoom, roomNode.getElementsByTagName("fighter"), spriteFolder);
         var paths = roomNode.getElementsByTagName("paths");
         if (paths.length > 0) {
             Sburb.serialLoadRoomPaths(newRoom, paths, assetFolder);

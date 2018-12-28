@@ -276,7 +276,6 @@ var Sburb = (function (Sburb) {
             parseButtons(input);
             parseSprites(input);
             parseCharacters(input);
-            parseFighters(input);
             parseRooms(input);
             parseGameState(input);
 
@@ -409,16 +408,6 @@ var Sburb = (function (Sburb) {
             var newChar = Sburb.parseCharacter(curChar, Sburb.assets);
             Sburb.sprites[newChar.name] = newChar;
             parseActions(curChar, newChar);
-        }
-    }
-
-    function parseFighters(input) {
-        var newFighters = input.getElementsByTagName("fighter");
-        for (var i = 0; i < newFighters.length; i++) {
-            var curFighter = newFighters[i];
-            var newFighter = Sburb.parseFighter(curFighter, Sburb.assets);
-            Sburb.sprites[newFighter.name] = newFighter;
-            parseActions(curFighter, newFighter);
         }
     }
 
