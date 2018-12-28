@@ -462,11 +462,6 @@ var Sburb = (function (Sburb) {
             Sburb.char.becomePlayer();
         }
 
-        var mode = rootInfo.getNamedItem("mode");
-        if (mode) {
-            Sburb.engineMode = mode.value;
-        }
-
         var scale = rootInfo.getNamedItem("scale");
         if (scale) {
             Sburb.document.setScale(parseInt(scale.value));

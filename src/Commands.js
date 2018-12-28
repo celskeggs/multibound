@@ -420,12 +420,6 @@ var Sburb = (function (Sburb) {
         Sburb.setVolume(volume);
     };
 
-//change the engine mode
-//syntax: modeName
-    commands.changeMode = function (info) {
-        Sburb.engineMode = info.trim();
-    };
-
 //load in an additional SBURBML file
 //syntax: path, keepOld
     commands.loadStateFile = function (info) {

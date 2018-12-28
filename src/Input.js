@@ -66,5 +66,33 @@ var Libs = (function (Libs) {
         return this.pressed[key];
     };
 
+    Libs.Input.prototype.indexOf = function(key) {
+        return this.pressedOrder.indexOf(key);
+    };
+
+    Libs.Input.prototype.maxIndexOf = function(a, b) {
+        return Math.max(this.indexOf(a), this.indexOf(b));
+    };
+
+    function moreRecently(query, other) {
+        return query >= 0 && query >= other;
+    }
+
+    Libs.Input.prototype.getMoveDirection = function() {
+        if (this.disabled) {
+            return {"x": 0, "y": 0};
+        }
+        // TODO: don't reference Sburb here
+        var down = this.maxIndexOf(Sburb.Keys.down, Sburb.Keys.s);
+        var up = this.maxIndexOf(Sburb.Keys.up, Sburb.Keys.w);
+        var left = this.maxIndexOf(Sburb.Keys.left, Sburb.Keys.a);
+        var right = this.maxIndexOf(Sburb.Keys.right, Sburb.Keys.d);
+        // we can do this because they'll only ever be equal if both are missing
+        return {
+            "x": left > right ? -1 : right > left ? 1 : 0,
+            "y":   up > down  ? -1 :  down > up   ? 1 : 0,
+        };
+    };
+
     return Libs;
 })(Libs || {});

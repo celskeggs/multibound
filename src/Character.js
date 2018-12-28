@@ -52,14 +52,6 @@ var Sburb = (function (Sburb) {
     Sburb.Character.prototype.update = function (curRoom) {
         this.handleFollowing(curRoom);
 
-        //what does this code block do????
-        if (this.handleInput > 0) {
-            --this.handleInput;
-            if (this.handleInput == 0) {
-                moveNone();
-            }
-        }
-
         this.tryToMove(this.vx, this.vy, curRoom);
         Sburb.Sprite.prototype.update.call(this, curRoom);
     };
@@ -86,35 +78,31 @@ var Sburb = (function (Sburb) {
                 destPos = this.followBuffer[0];
                 var moveMap = curRoom.getInverseMoveFunction(this);
                 var delta;
-                var keys = [];
                 if (moveMap) {
                     delta = moveMap(destPos.x - this.x, destPos.y - this.y);
                 } else {
                     delta = {x: destPos.x - this.x, y: destPos.y - this.y};
                 }
+                var moverel = {"x": 0, "y": 0};
                 if (Math.abs(delta.x) >= this.speed / 1.9) {
                     if (delta.x > 0) {
-                        keys.push(Sburb.Keys.right);
+                        moverel.x = 1;
                     } else {
-                        keys.push(Sburb.Keys.left);
+                        moverel.x = -1;
                     }
                 }
                 if (Math.abs(delta.y) >= this.speed / 1.9) {
                     if (delta.y > 0) {
-                        keys.push(Sburb.Keys.down);
+                        moverel.y = 1;
                     } else {
-                        keys.push(Sburb.Keys.up);
+                        moverel.y = -1;
                     }
                 }
-                if (keys.length == 0) {
+                if (moverel.x === 0 && moverel.y === 0) {
                     this.followBuffer.splice(0, 1);
                     continue;
                 } else {
-                    var pressed = {};
-                    for (var i = 0; i < keys.length; i++) {
-                        pressed[keys[i]] = true;
-                    }
-                    this.handleInputs(pressed, keys);
+                    this.handleInputs(moverel);
                 }
                 break;
             }
@@ -172,7 +160,7 @@ var Sburb = (function (Sburb) {
 
 //impulse character to stand still
     Sburb.Character.prototype.moveNone = function () {
-        if (this.animations.walkFront.frameInterval == 4) {
+        if (this.animations.walkFront.frameInterval === 4) {
             this.idle();
             this.vx = 0;
             this.vy = 0;
@@ -206,32 +194,19 @@ var Sburb = (function (Sburb) {
     };
 
 //parse key inputs into actions
-    Sburb.Character.prototype.handleInputs = function (pressed, order) {
-        var down = -1, up = -1, left = -1, right = -1, none = -0.5;
-        down = Math.max(order.indexOf(Sburb.Keys.down), order.indexOf(Sburb.Keys.s));
-        up = Math.max(order.indexOf(Sburb.Keys.up), order.indexOf(Sburb.Keys.w));
-        left = Math.max(order.indexOf(Sburb.Keys.left), order.indexOf(Sburb.Keys.a));
-        right = Math.max(order.indexOf(Sburb.Keys.right), order.indexOf(Sburb.Keys.d));
-        var most = Math.max(left, right, none);
-        var movingSideways = true;
-        if (left == most) {
+    Sburb.Character.prototype.handleInputs = function (movedir) {
+        if (movedir.x === -1) {
             this.moveLeft();
-        } else if (right == most) {
+        } else if (movedir.x === 1) {
             this.moveRight();
-        } else {
-            movingSideways = false;
         }
-        var most = Math.max(up, down, none);
-        var movingVertical = true;
-        if (down == most) {
-            this.moveDown(movingSideways);
-        } else if (up == most) {
-            this.moveUp(movingSideways);
-        } else {
-            movingVertical = false;
+        if (movedir.y === 1) {
+            this.moveDown(movedir.x !== 0);
+        } else if (movedir.y === -1) {
+            this.moveUp(movedir.x !== 0);
         }
 
-        if (!movingSideways && !movingVertical) {
+        if (movedir.x === 0 && movedir.y === 0) {
             this.moveNone();
         }
     };

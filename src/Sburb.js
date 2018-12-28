@@ -46,7 +46,6 @@ var Sburb = (function (Sburb) {
     Sburb.hud = null; //the hud; help and sound buttons
     Sburb.Mouse = {down: false, x: 0, y: 0}; //current recorded properties of the mouse
     Sburb.waitFor = null;
-    Sburb.engineMode = "wander";
     Sburb.fading = false;
     Sburb.loadingRoom = false; // Only load one room at a time
     Sburb.tests = null;
@@ -119,7 +118,8 @@ var Sburb = (function (Sburb) {
 
     function update() {
         Sburb.handleBGM();
-        handleInputs();
+        Sburb.document.setCursor("default");
+        Sburb.char.handleInputs(hasControl() ? Sburb.input.getMoveDirection() : {"x": 0, "y": 0});
         handleHud();
 
         if (!Sburb.loadingRoom)
@@ -185,7 +185,7 @@ var Sburb = (function (Sburb) {
                 Sburb.dialoger.nudge();
             }
         } else if (hasControl()) {
-            if (key === Sburb.Keys.space && Sburb.engineMode == "wander") {
+            if (key === Sburb.Keys.space) {
                 Sburb.chooser.choices = [];
                 var queries = Sburb.char.getActionQueries();
                 for (var i = 0; i < queries.length; i++) {
@@ -200,7 +200,7 @@ var Sburb = (function (Sburb) {
                 }
             }
         }
-    };
+    }
 
     Sburb.onMouseMove = function (e, canvas) {
         var point = relMouseCoords(e, canvas);
@@ -210,7 +210,8 @@ var Sburb = (function (Sburb) {
 
     Sburb.onMouseDown = function (e, canvas) {
         if (!Sburb.updateLoop) return; // Make sure we are loaded before trying to do things
-        if (Sburb.engineMode == "strife" && hasControl()) {
+        // TODO: don't let this work
+        if (hasControl()) {
             var stagePos = Sburb.document.getStagePos();
             Sburb.chooser.choices = Sburb.curRoom.queryActionsVisual(Sburb.char, stagePos.x + Sburb.Mouse.x, stagePos.y + Sburb.Mouse.y);
             if (Sburb.chooser.choices.length > 0) {
@@ -245,18 +246,6 @@ var Sburb = (function (Sburb) {
         canvasX = event.pageX - totalOffsetX;
         canvasY = event.pageY - totalOffsetY;
         return {x: canvasX, y: canvasY};
-    }
-
-    function handleInputs() {
-        if (Sburb.document) { // TODO: is this conditional necessary?
-            Sburb.document.setCursor("default");
-        }
-        if (hasControl() && !Sburb.input.disabled) {
-            // TODO: refactor into Input
-            Sburb.char.handleInputs(Sburb.input.pressed, Sburb.input.pressedOrder);
-        } else {
-            Sburb.char.moveNone();
-        }
     }
 
     function handleHud() {
