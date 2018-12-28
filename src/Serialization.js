@@ -22,10 +22,8 @@ var Sburb = (function (Sburb) {
         }
         Sburb.rooms = {};
         Sburb.haltBGM();
-        for (var bin in Sburb.Bins) {
-            if (!Sburb.Bins.hasOwnProperty(bin)) continue;
-            Sburb.Bins[bin].innerHTML = "";
-        }
+        Sburb.document.clearFonts();
+        Sburb.document.clearGifs();
         Sburb.gameState = {};
         Sburb.setVolume(1);
         Sburb.hud = {};
@@ -35,8 +33,7 @@ var Sburb = (function (Sburb) {
         Sburb.curAction = null;
         Sburb.actionQueues = [];
         Sburb.nextQueueId = 0;
-        Sburb.pressed = {};
-        Sburb.pressedOrder = [];
+        Sburb.input.purge();
         Sburb.chooser = new Sburb.Chooser();
         Sburb.dialoger = null;
         Sburb.curRoom = null;

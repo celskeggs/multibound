@@ -22,12 +22,10 @@ var Sburb = (function (Sburb) {
     Sburb.name = 'Jterniabound';
     Sburb.version = '1.0';
     Sburb.document = null;
-    Sburb.Bins = {}; //the various bin divs
+    Sburb.input = null;
     Sburb.cam = {x: 0, y: 0};
     Sburb.stage = null; //its context
     Sburb.gameState = {};
-    Sburb.pressed = null; //the pressed keys
-    Sburb.pressedOrder = null; //reverse stack of keypress order. Higher index = pushed later
     Sburb.assetManager = null; //the asset loader
     Sburb.assets = null; //all images, sounds, paths
     Sburb.sprites = null; //all sprites that were Serial loaded
@@ -42,7 +40,6 @@ var Sburb = (function (Sburb) {
     Sburb.focus = null; //the focus of the camera (a sprite), usually just the char
     Sburb.destFocus = null;
     Sburb.chooser = null; //the option chooser
-    Sburb.inputDisabled = false; //disables player-control
     Sburb.curAction = null; //the current action being performed
     Sburb.actionQueues = []; //additional queues for parallel actions
     Sburb.nextQueueId = 0; //the next created actionQueue, specified without a id, will get this number and increment it
@@ -56,16 +53,6 @@ var Sburb = (function (Sburb) {
 
     Sburb.updateLoop = null; //the main updateLoop, used to interrupt updating
 
-    function createElements(div, mouseDown, mouseUp, mouseMove) {
-        Sburb.document = new Libs.Document(document.getElementById(div));
-        Sburb.document.registerMouseEvents(mouseDown, mouseUp, mouseMove);
-        Sburb.document.registerKeyEvents(_onkeydown, _onkeyup);
-
-        // TODO: fix these
-        Sburb.Bins["font"] = Sburb.document.fontDiv;
-        Sburb.Bins["gif"] = Sburb.document.gifDiv;
-    }
-
     function initializeReal(div, levelName) {
         Sburb.chooser = new Sburb.Chooser();
         Sburb.dialoger = null;
@@ -77,16 +64,17 @@ var Sburb = (function (Sburb) {
         Sburb.buttons = {};
         Sburb.hud = {};
         Sburb.gameState = {};
-        Sburb.pressed = {};
-        Sburb.pressedOrder = [];
 
-        createElements(div, Sburb.onMouseDown, Sburb.onMouseUp, Sburb.onMouseMove);
+        Sburb.document = new Libs.Document(document.getElementById(div));
+        Sburb.document.registerMouseEvents(Sburb.onMouseDown, Sburb.onMouseUp, Sburb.onMouseMove);
+
+        Sburb.input = new Libs.Input(_onkeypress);
+        Sburb.input.register(Sburb.document);
 
         // Set default dimensions
         Sburb.setDimensions(650, 450);
 
         Sburb.stage = Sburb.document.getStageContext();
-        Sburb.document.registerBlurEvent(_onblur);
 
         Sburb.loadSerialFromXML(levelName);
     }
@@ -175,64 +163,43 @@ var Sburb = (function (Sburb) {
         Sburb.document.setOffset(false);
     }
 
-    var _onkeydown = function (e) {
-        if (Sburb.updateLoop && !Sburb.inputDisabled) { // Make sure we are loaded before trying to do things
-            if (Sburb.chooser.choosing) {
-                if (e.keyCode == Sburb.Keys.down || e.keyCode == Sburb.Keys.s) {
-                    Sburb.chooser.nextChoice();
-                }
-                if (e.keyCode == Sburb.Keys.up || e.keyCode == Sburb.Keys.w) {
-                    Sburb.chooser.prevChoice();
-                }
-                if (e.keyCode == Sburb.Keys.space && !Sburb.pressed[Sburb.Keys.space]) {
-                    Sburb.performAction(Sburb.chooser.choices[Sburb.chooser.choice]);
-                    Sburb.chooser.choosing = false;
-                }
-            } else if (Sburb.dialoger.talking) {
-                if (e.keyCode == Sburb.Keys.space && !Sburb.pressed[Sburb.Keys.space]) {
-                    Sburb.dialoger.nudge();
-                }
-            } else if (hasControl()) {
-                if (e.keyCode == Sburb.Keys.space && !Sburb.pressed[Sburb.Keys.space] && Sburb.engineMode == "wander") {
-                    Sburb.chooser.choices = [];
-                    var queries = Sburb.char.getActionQueries();
-                    for (var i = 0; i < queries.length; i++) {
-                        Sburb.chooser.choices = Sburb.curRoom.queryActions(Sburb.char, queries[i].x, queries[i].y);
-                        if (Sburb.chooser.choices.length > 0) {
-                            break;
-                        }
-                    }
+    function _onkeypress(key) {
+        if (key === Sburb.Keys.space) {
+            Sburb.assetManager.onSpace();
+        }
+        if (!Sburb.updateLoop) {
+            // can't do anything
+        } else if (Sburb.chooser.choosing) {
+            if (key === Sburb.Keys.down || key === Sburb.Keys.s) {
+                Sburb.chooser.nextChoice();
+            }
+            if (key === Sburb.Keys.up || key === Sburb.Keys.w) {
+                Sburb.chooser.prevChoice();
+            }
+            if (key === Sburb.Keys.space) {
+                Sburb.performAction(Sburb.chooser.choices[Sburb.chooser.choice]);
+                Sburb.chooser.choosing = false;
+            }
+        } else if (Sburb.dialoger.talking) {
+            if (key === Sburb.Keys.space) {
+                Sburb.dialoger.nudge();
+            }
+        } else if (hasControl()) {
+            if (key === Sburb.Keys.space && Sburb.engineMode == "wander") {
+                Sburb.chooser.choices = [];
+                var queries = Sburb.char.getActionQueries();
+                for (var i = 0; i < queries.length; i++) {
+                    Sburb.chooser.choices = Sburb.curRoom.queryActions(Sburb.char, queries[i].x, queries[i].y);
                     if (Sburb.chooser.choices.length > 0) {
-                        Sburb.chooser.choices.push(new Sburb.Action("cancel", "cancel", "Cancel."));
-                        beginChoosing();
+                        break;
                     }
+                }
+                if (Sburb.chooser.choices.length > 0) {
+                    Sburb.chooser.choices.push(new Sburb.Action("cancel", "cancel", "Cancel."));
+                    beginChoosing();
                 }
             }
         }
-        if (!Sburb.pressed[e.keyCode])
-            Sburb.pressedOrder.push(e.keyCode);
-        Sburb.pressed[e.keyCode] = true;
-        // return true if we want to pass keys along to the browser, i.e. Ctrl-N for a new window
-        if (e.altKey || e.ctrlKey || e.metaKey) {
-            // don't muck with system stuff
-            return true;
-        }
-        return false;
-    };
-
-    var _onkeyup = function (e) {
-        if (Sburb.pressed[e.keyCode])
-            Sburb.pressedOrder.destroy(e.keyCode);
-        Sburb.pressed[e.keyCode] = false;
-    };
-
-    function purgeKeys() {
-        Sburb.pressed = {};
-        Sburb.pressedOrder = [];
-    }
-
-    var _onblur = function (e) {
-        purgeKeys();
     };
 
     Sburb.onMouseMove = function (e, canvas) {
@@ -284,8 +251,9 @@ var Sburb = (function (Sburb) {
         if (Sburb.document) { // TODO: is this conditional necessary?
             Sburb.document.setCursor("default");
         }
-        if (hasControl() && !Sburb.inputDisabled) {
-            Sburb.char.handleInputs(Sburb.pressed, Sburb.pressedOrder);
+        if (hasControl() && !Sburb.input.disabled) {
+            // TODO: refactor into Input
+            Sburb.char.handleInputs(Sburb.input.pressed, Sburb.input.pressedOrder);
         } else {
             Sburb.char.moveNone();
         }
@@ -414,11 +382,7 @@ var Sburb = (function (Sburb) {
                 Sburb.waitFor = null;
             }
         }
-        if (Sburb.inputDisabled && Sburb.inputDisabled.checkCompletion) {
-            if (Sburb.inputDisabled.checkCompletion()) {
-                Sburb.inputDisabled = false;
-            }
-        }
+        Sburb.input.update();
     }
 
     Sburb.performAction = function (action, queue) {

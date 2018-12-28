@@ -9,7 +9,6 @@ var Sburb = (function (Sburb) {
     Sburb.AssetManager = function () {
         // Loop tracking
         this.loopID = false;
-        this.space = false;
         this.refresh = false;
         // Asset tracking
         this.totalAssets = 0; // Used in calculation of "Are we done yet?"
@@ -59,16 +58,11 @@ var Sburb = (function (Sburb) {
         }
     };
 
-    Sburb.AssetManager.prototype.loop = function () {
-        if (Sburb.pressed[Sburb.Keys.space] && !this.space) {
-            this.space = true;
-            this.refresh = true;
-        } else {
-            this.refresh = false;
-        }
-        if (!Sburb.pressed[Sburb.Keys.space])
-            this.space = false;
+    Sburb.AssetManager.prototype.onSpace = function() {
+        this.refresh = true;
+    };
 
+    Sburb.AssetManager.prototype.loop = function () {
         this.draw();
     };
 
@@ -120,6 +114,7 @@ var Sburb = (function (Sburb) {
             Sburb.stage.textAlign = "center";
             if (this.failed.length) {
                 if (this.refresh) {
+                    this.refresh = false;
                     this.error = ["Refreshing..."];
                     for (var i = 0; i < this.failed.length; i++)
                         this.assets[this.failed[i]].reload();
@@ -552,8 +547,8 @@ var Sburb = (function (Sburb) {
             var ext = path.substring(path.indexOf(".") + 1, path.length);
             var type = Sburb.assetManager.mimes[ext];
             ret.src = url;
-            if (type == "image/gif") {
-                Sburb.Bins["gif"].appendChild(ret);
+            if (type === "image/gif") {
+                Sburb.document.addGif(ret);
             }
         };
         ret.failure = function () {
@@ -772,7 +767,7 @@ var Sburb = (function (Sburb) {
             ret.sources[id] = font;
             ret.remaining -= 1;
             if (!ret.remaining) {
-                Sburb.Bins["font"].innerHTML += '<style type="text/css">@font-face{ font-family: ' + ret.name + '; src: ' + ret.sources.join(',') + '; ' + ret.extra + '}</style>';
+                Sburb.document.addFont(ret.name, ret.sources, ret.extra);
                 Sburb.stage.font = "10px " + name;
                 ret.done();
             }

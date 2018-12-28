@@ -19,7 +19,6 @@ var Sburb = (function (Sburb) {
         this.followBuffer = null;
         this.follower = null;
         this.lastLeaderPos = null;
-        this.handledInput = -1;
         this.oldX = 0;
         this.oldY = 0;
 
@@ -235,7 +234,6 @@ var Sburb = (function (Sburb) {
         if (!movingSideways && !movingVertical) {
             this.moveNone();
         }
-        this.handledInput = 2;
     };
 
 //have character try to move through room

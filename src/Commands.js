@@ -219,13 +219,20 @@ var Sburb = (function (Sburb) {
 //Prevents user from providing input to the character
 //syntax: none
     commands.disableControl = function (info) {
-        Sburb.inputDisabled = info.trim().length > 0 ? new Sburb.Trigger(info) : true;
+        if (info.trim().length > 0) {
+            var trigger = new Sburb.Trigger(info);
+            Sburb.input.disableUntil(function() {
+                return trigger.checkCompletion();
+            });
+        } else {
+            Sburb.input.setDisabled(true);
+        }
     };
 
 //Undoes disableControl
 //syntax: none
     commands.enableControl = function (info) {
-        Sburb.inputDisabled = false;
+        Sburb.input.setDisabled(false);
     };
 
 //DEPRECATED; DO NOT USE

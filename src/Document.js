@@ -53,8 +53,12 @@ var Libs = (function (Libs) {
     };
 
     Libs.Document.prototype.registerKeyEvents = function(onkeydown, onkeyup) {
-        this.gameDiv.onkeydown = onkeydown;
-        this.gameDiv.onkeyup = onkeyup;
+        this.gameDiv.onkeydown = function (e) {
+            onkeydown(e);
+        };
+        this.gameDiv.onkeyup = function (e) {
+            onkeyup(e);
+        };
     };
 
     Libs.Document.prototype.registerBlurEvent = function(onblur) {
@@ -134,6 +138,22 @@ var Libs = (function (Libs) {
 
     Libs.Document.prototype.getStageContext = function() {
         return this.gameCanvas.getContext("2d");
+    };
+
+    Libs.Document.prototype.addFont = function(name, sources, extra) {
+        this.fontDiv.innerHTML += '<style type="text/css">@font-face{ font-family: ' + name + '; src: ' + sources.join(',') + '; ' + extra + '}</style>';
+    };
+
+    Libs.Document.prototype.clearFonts = function() {
+        this.fontDiv.innerHTML = "";
+    };
+
+    Libs.Document.prototype.addGif = function(child) {
+        this.gifDiv.appendChild(child);
+    };
+
+    Libs.Document.prototype.clearGifs = function() {
+        this.gifDiv.innerHTML = "";
     };
 
     return Libs;
